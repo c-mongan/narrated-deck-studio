@@ -1,0 +1,25 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+coverage/
+
+# Real or generated media never belongs in this repository.
+private/
+references/
+recordings/
+outputs/
+models/
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.mp4
+*.mov
+*.webm
+
+# Job manifests can contain speaker and profile identifiers.
+jobs/
+*.private.json

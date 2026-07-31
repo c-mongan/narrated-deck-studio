@@ -1,0 +1,13 @@
+{
+  "name": "narrated-demo-toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node scripts/validate_job.mjs templates/job-manifest.example.json && node scripts/validate_chapters.mjs templates/chapter-manifest.example.json"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
