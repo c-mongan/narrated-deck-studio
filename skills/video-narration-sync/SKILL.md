@@ -24,11 +24,18 @@ labels, tooltips, cursor timing, captions, and visual speed.
    labels, tooltip, and caption ranges.
 5. Stretch or compress each visual chapter separately. Never apply one global
    speed factor to the full video.
-6. Keep title cards visible for at least five seconds and settled application
-   screens visible for at least three seconds.
-7. Show at most one tooltip and three small labels simultaneously. Keep labels
+6. Preserve narration speed by default. Give viewers more time through visual
+   holds, earlier explanatory screens, simpler text, or a regenerated natural
+   take; never slow the approved master to repair visual pacing.
+7. Keep dedicated title cards visible for at least five seconds when the audio
+   chapter permits it, and settled application screens visible for at least
+   three seconds.
+8. Show at most one tooltip and three small labels simultaneously. Keep labels
    short; make the tooltip explain why the visible control matters.
-8. Mux the unmodified master from time zero as one full input.
+9. Use a 0.8–1.25 second visual crossfade between a slide and its product screen
+   when a calmer transition is wanted. Subtract the overlap from visual timing;
+   never extend, cut, or retime audio to accommodate the transition.
+10. Mux the unmodified master from time zero as one full input.
 
 ## Visual timing modes
 
@@ -51,6 +58,8 @@ to introduce, clarify, compare, or summarise.
 - final sentence and final card both complete before the video ends
 - one full audio input is mapped from time zero
 - assembly contains no `atrim`, audio `concat`, `acrossfade`, or chapter audio maps
+- narration retains the approved master speed and duration
+- transition overlap is represented in the chapter manifest
 - duration differs from the approved master by no more than 50 ms
 - no audio packet timestamp gap exceeds two encoded frames
 - codecs, resolution, loudness, clipping, captions, and contact sheet pass review

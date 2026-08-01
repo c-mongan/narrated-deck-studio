@@ -61,6 +61,16 @@ Do not download multi-gigabyte models without checking storage and approval.
 - selected master is one complete generated file
 - rejected takes are clearly separated and retained only as agreed
 
+Run `../../scripts/analyze_voice_naturalness.mjs MASTER.wav SCRIPT.txt` before
+editing. Review clipping, DC offset, internal digital-zero gaps, abrupt waveform
+jumps, dynamic range, pause structure, and words per minute. Preserve the
+engine's natural speed; if pace is unsuitable, reject and regenerate the take
+instead of repairing it with a large tempo change.
+
+Forensic metrics can find artifacts but cannot prove a voice sounds human.
+Blind listening against authorised references remains mandatory. Compare takes
+without telling reviewers which engine or seed produced each one.
+
 Use `../../scripts/voicebox_generate.sh` for reproducible Voicebox generation.
 Never place its profile ID, input recording, or output inside this repository.
 

@@ -18,6 +18,7 @@ crossfade the approved master.
 - `narrated-product-demo`: an end-to-end orchestration skill joining both.
 - reusable consent, job, and chapter-manifest templates.
 - deterministic validation and FFmpeg/ffprobe continuity checks.
+- forensic artifact and pacing analysis for narration masters.
 
 ## Requirements
 
@@ -33,6 +34,7 @@ crossfade the approved master.
 npm test
 cp templates/job-manifest.example.json /outside/repo/jobs/demo.private.json
 node scripts/validate_job.mjs /outside/repo/jobs/demo.private.json
+node scripts/analyze_voice_naturalness.mjs /outside/repo/master.wav /outside/repo/script.txt
 ```
 
 Read `skills/narrated-product-demo/SKILL.md` for the complete workflow. Copy a
