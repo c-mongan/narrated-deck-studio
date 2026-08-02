@@ -25,16 +25,18 @@ produces a fast clone. Avoid aggressive denoising or pitch manipulation.
 ## Generation and selection
 
 1. Write short spoken sentences with one idea per breath.
-2. Use chapter-sized test generations only to audition wording, pronunciation,
+2. Run a 60–100 word calibration with the exact profile and settings. Measure
+   WPM and reject it outside the audience target before generating the full script.
+3. Use chapter-sized test generations only to audition wording, pronunciation,
    reference samples, and engine settings.
-3. Generate at least two full-script continuous takes using different seeds.
-4. Blind-score identity, naturalness, pronunciation, pace, noise, and emotional
+4. Generate at least two full-script continuous takes using different seeds.
+5. Blind-score identity, naturalness, pronunciation, pace, noise, and emotional
    fit. Reject unstable or incomplete takes.
-5. Select one returned audio file as the immutable master. Do not assemble the
+6. Select one returned audio file as the immutable master. Do not assemble the
    approved master from chapter files or repair it by cutting and splicing.
-6. Apply only light loudness normalisation. Treat tempo changes beyond about 8%
+7. Apply only light loudness normalisation. Treat tempo changes beyond about 8%
    as failed generation and regenerate at a natural pace.
-7. Save engine/model/version, seed, settings, references by opaque alias,
+8. Save engine/model/version, seed, settings, references by opaque alias,
    generation ID, script checksum, master checksum, and approval decision.
 
 An engine may internally process text in chunks. “Continuous master” here means
@@ -73,6 +75,12 @@ without telling reviewers which engine or seed produced each one.
 
 Use `../../scripts/voicebox_generate.sh` for reproducible Voicebox generation.
 Never place its profile ID, input recording, or output inside this repository.
+Voicebox's current request fields are `model_size` and `crossfade_ms`; verify
+them against the running API because unknown fields may be ignored. For long
+narration, begin around 800–1,200 characters per chunk and A/B test boundaries.
+Bound every generation with a timeout. If the job shows no model compute or
+output for ten minutes, cancel it, restart Voicebox, and retry a short
+calibration before attempting another full take.
 
 ## Sources
 

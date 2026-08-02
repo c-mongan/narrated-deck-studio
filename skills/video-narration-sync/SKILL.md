@@ -48,6 +48,23 @@ Keep cursor movement natural. Apply speed changes between actions, not halfway
 through a click. Real screens are primary evidence; use slides or diagrams only
 to introduce, clarify, compare, or summarise.
 
+## Accessible pacing defaults
+
+- Target 135–150 spoken words per minute for a general or older audience and
+  use 165 WPM as a practical ceiling. Reject narration above 180 WPM for this
+  use case.
+- Hold a simple establishing screen for 6–8 seconds.
+- Allow 10–15 seconds for one normal product screen and action.
+- Allow 15–25 seconds for a complex admin screen, or split it into separate
+  visible beats.
+- Hold a settled screen 1.5–2.5 seconds before detail and 2–4 seconds after the
+  result.
+- Keep ordinary transitions around 0.6–1.0 seconds and meaningful browser
+  interaction near 1x, with roughly 1.15x as the ceiling.
+
+The screen values are conservative production heuristics, not universal
+standards. Validate them with older and first-time viewers.
+
 ## QA gate
 
 - sample the start, middle, and end of every chapter
@@ -75,3 +92,8 @@ node ../../scripts/verify_audio_continuity.mjs MASTER.wav FINAL.mp4
 - https://github.com/m-bain/whisperX
 - https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner
 - https://ffmpeg.org/ffmpeg-filters.html
+- https://www.section508.gov/create/captions-transcripts/
+- https://www.w3.org/WAI/older-users/developing/
+- https://www.w3.org/WAI/WCAG20/Understanding/enough-time
+- https://pubmed.ncbi.nlm.nih.gov/31580758/
+- https://pmc.ncbi.nlm.nih.gov/articles/PMC9762622/
