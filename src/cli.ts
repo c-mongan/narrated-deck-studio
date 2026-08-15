@@ -11,7 +11,7 @@ import { requestRevision } from "./revisions.js";
 import type { PlanAnswers } from "./types.js";
 
 const program = new Command();
-program.name("nds").description("Consent-first narrated PowerPoint studio").version("0.2.0");
+program.name("nds").description("Consent-first narrated PowerPoint studio").version("0.3.0");
 
 program.command("init").argument("<source-folder>").option("--workspace <folder>").action(async (source, options) => print(await createProject(source, options.workspace)));
 program.command("inspect").argument("<workspace>").action(async (workspace) => {
@@ -38,9 +38,9 @@ program.command("stage").argument("<workspace>").argument("<stage>").action(asyn
   if (!new Set(["deck", "voice", "assemble"]).has(stage)) throw new Error("Stage must be deck, voice or assemble");
   print(await runApprovedStage(path.resolve(workspace), stage));
 });
-program.command("revise").argument("<workspace>").argument("<target>").argument("<instruction>").action(async (workspace, target, instruction) => {
+program.command("revise").argument("<workspace>").argument("<target>").argument("<instruction>").option("--cancel-running").action(async (workspace, target, instruction, options) => {
   const manifest = await loadProject(path.resolve(workspace));
-  await requestRevision(manifest, target, instruction);
+  await requestRevision(manifest, target, instruction, "user", options.cancelRunning === true);
   print({ revisionRequested: true, target });
 });
 program.command("qa").argument("<workspace>").action(async (workspace) => print(await runReleaseChecks(await loadProject(path.resolve(workspace)))));

@@ -11,7 +11,7 @@ import { startReviewServer, type ReviewServerHandle } from "./review-server.js";
 import { exportDeliverables, runApprovedStage, runReleaseChecks } from "./pipeline.js";
 import { requestRevision } from "./revisions.js";
 
-const server = new McpServer({ name: "narrated-deck-studio", version: "0.2.0" });
+const server = new McpServer({ name: "narrated-deck-studio", version: "0.3.0" });
 const reviewServers = new Map<string, ReviewServerHandle>();
 
 function result(value: unknown) { return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }], structuredContent: value as Record<string, unknown> }; }
@@ -30,7 +30,9 @@ server.tool("inspect_folder", "Safely inventory a user-approved folder and creat
 });
 
 server.tool("draft_series_plan", "Draft the series plan after asking the user about audience, outcome, output count, time and voice source. This never approves the plan.", {
-  workspace: z.string().min(1), audience: z.string(), desiredAction: z.string(), outputCount: z.number().int().min(1).max(24),
+  workspace: z.string().min(1), audience: z.string(), desiredAction: z.string(), outputCount: z.number().int().min(1).max(24).optional(),
+  outputMode: z.enum(["auto", "one-per-powerpoint", "custom"]).optional(),
+  sourceGroups: z.array(z.array(z.string().min(1)).min(1)).optional(),
   totalDurationSeconds: z.number().min(30).optional(), perOutputDurationSeconds: z.array(z.number().min(30)).optional(),
   style: z.string().optional(), voiceSource: z.enum(["local-audio", "authorized-youtube", "preset"]).optional(),
   voiceReference: z.string().optional(), speakerAlias: z.string().optional(), permissionConfirmed: z.boolean().optional(),
@@ -63,9 +65,9 @@ server.tool("run_approved_stage", "Run one bounded production stage. It fails cl
 }, async ({ workspace, stage }) => { try { return result(await runApprovedStage(path.resolve(workspace), stage)); } catch (error) { return toolError(error); } });
 
 server.tool("request_revision", "Record a conversational edit request and invalidate affected downstream approvals.", {
-  workspace: z.string().min(1), target: z.enum(["plan", "deck", "script", "voice", "timeline", "release"]), instruction: z.string().min(1), actor: z.string().optional(),
-}, async ({ workspace, target, instruction, actor }) => {
-  try { const manifest = await loadProject(path.resolve(workspace)); await requestRevision(manifest, target, instruction, actor); return result({ revisionRequested: true, target, state: manifest.state }); } catch (error) { return toolError(error); }
+  workspace: z.string().min(1), target: z.enum(["plan", "deck", "script", "voice", "timeline", "release"]), instruction: z.string().min(1), actor: z.string().optional(), cancelRunning: z.boolean().optional(),
+}, async ({ workspace, target, instruction, actor, cancelRunning }) => {
+  try { const manifest = await loadProject(path.resolve(workspace)); await requestRevision(manifest, target, instruction, actor, cancelRunning === true); return result({ revisionRequested: true, target, state: manifest.state, cancellationRequested: cancelRunning === true }); } catch (error) { return toolError(error); }
 });
 
 server.tool("run_release_checks", "Run deterministic release checks and create the artifact reviewed at approval 4.", { workspace: z.string().min(1) }, async ({ workspace }) => {

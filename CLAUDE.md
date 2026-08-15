@@ -1,6 +1,6 @@
-# Claude Cowork Instructions
+# Agent Host Instructions
 
-For folder-to-narrated-PowerPoint work, load `skills/narrated-deck-studio/SKILL.md` first. It is the Cowork-first entrypoint and owns the four human approval gates. The older skills remain focused sub-workflows.
+For folder-to-narrated-PowerPoint work, load `skills/narrated-deck-studio/SKILL.md` first. It is the host-neutral entrypoint for Codex, Hermes Agent and Claude Cowork and owns the four human approval gates. The older skills remain focused sub-workflows.
 
 This repository is a consent-first toolkit for authorised synthetic narration,
 PowerPoint alignment and video assembly. Claude Cowork may run the checked-in

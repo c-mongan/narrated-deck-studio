@@ -12,7 +12,7 @@ import type { ApprovalGate, ProjectManifest } from "./types.js";
 const MIME: Record<string, string> = {
   ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp",
   ".wav": "audio/wav", ".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".mp4": "video/mp4",
-  ".vtt": "text/vtt", ".json": "application/json",
+  ".vtt": "text/vtt", ".srt": "application/x-subrip", ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation", ".ppsx": "application/vnd.openxmlformats-officedocument.presentationml.slideshow", ".json": "application/json",
 };
 
 function escapeHtml(value: unknown): string {
@@ -50,7 +50,13 @@ async function reviewBody(manifest: ProjectManifest, gate: ApprovalGate, token: 
   }
   if (gate === "voice") {
     const items = Array.isArray(subject.items) ? subject.items as Array<Record<string, unknown>> : [];
-    choices = `<h2>Choose the most natural take</h2>${items.map((item) => { const takes = Array.isArray(item.takes) ? item.takes as Array<Record<string, unknown>> : []; return `<h3>${escapeHtml(item.title ?? item.itemId)}</h3><form method="post" action="/select?token=${token}"><div class="grid">${takes.map((take, index) => `<label class="card"><input type="radio" name="selection" value="${escapeHtml(take.id)}" ${item.selectedTake === take.id ? "checked" : ""}> <strong>Take ${index + 1}</strong>${take.preview ? `<audio controls src="/asset?token=${token}&path=${encodeURIComponent(String(take.preview))}"></audio>` : ""}<p>${escapeHtml(take.summary ?? "Listen for pace, warmth, pronunciation and artifacts.")}</p></label>`).join("")}</div><input type="hidden" name="gate" value="voice"><input type="hidden" name="itemId" value="${escapeHtml(item.itemId)}"><button type="submit">Save this voice take</button></form>`; }).join("")}`;
+    choices = `<h2>Calibration and blind full-take audition</h2>${items.map((item) => { const takes = Array.isArray(item.takes) ? item.takes as Array<Record<string, unknown>> : []; const calibration = item.calibration as Record<string, unknown> | undefined; return `<h3>${escapeHtml(item.title ?? item.itemId)}</h3>${calibration?.preview ? `<div class="notice"><strong>Short calibration</strong><audio controls src="/asset?token=${token}&path=${encodeURIComponent(String(calibration.preview))}"></audio></div>` : ""}<form method="post" action="/select?token=${token}"><div class="grid">${takes.map((take, index) => `<label class="card"><input type="radio" name="selection" value="${escapeHtml(take.id)}" ${item.selectedTake === take.id ? "checked" : ""}> <strong>Full take ${index + 1}</strong>${take.preview ? `<audio controls src="/asset?token=${token}&path=${encodeURIComponent(String(take.preview))}"></audio>` : ""}<p>${escapeHtml(take.summary ?? "Listen for pace, warmth, pronunciation and artifacts.")}</p></label>`).join("")}</div><input type="hidden" name="gate" value="voice"><input type="hidden" name="itemId" value="${escapeHtml(item.itemId)}"><button type="submit">Save this voice take</button></form>`; }).join("")}`;
+  }
+  if (gate === "release") {
+    const assemblyPath = path.join(manifest.workspaceRoot, "reports", "assembly.json");
+    const assembly = JSON.parse(await readFile(assemblyPath, "utf8")) as { items?: Array<Record<string, unknown>> };
+    const blockers = Array.isArray(subject.blockers) ? subject.blockers : [];
+    choices = `<h2>Final deliverables</h2>${blockers.length ? `<div class="notice warning"><strong>Release blockers</strong><ul>${blockers.map((blocker) => `<li>${escapeHtml(blocker)}</li>`).join("")}</ul></div>` : ""}<div class="grid">${(assembly.items ?? []).map((item) => `<div class="card"><h3>${escapeHtml(item.itemId)}</h3>${item.mp4 ? `<video controls src="/asset?token=${token}&path=${encodeURIComponent(String(item.mp4))}"></video>` : ""}<p>${["pptx", "ppsx", "mp4"].filter((key) => item[key]).map((key) => `<a href="/asset?token=${token}&path=${encodeURIComponent(String(item[key]))}">${key.toUpperCase()}</a>`).join(" · ")}</p></div>`).join("")}</div>`;
   }
   const hash = await artifactHash(manifest, gate);
   return `<div class="eyebrow">Approval ${["plan", "deck", "voice", "release"].indexOf(gate) + 1} of 4</div><h1>${label}</h1><p class="notice">Please review this carefully. Approval is recorded against the exact version shown here; later edits automatically invalidate downstream work.</p>${choices}<h2>Details</h2><pre>${escapeHtml(JSON.stringify(subject, null, 2))}</pre><form method="post" action="/approve?token=${token}"><input type="hidden" name="gate" value="${gate}"><input type="hidden" name="hash" value="${hash}"><label>Your name <input name="actor" required value="Dad"></label><button type="submit">Approve and continue</button></form>`;

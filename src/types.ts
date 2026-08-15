@@ -45,6 +45,8 @@ export interface SeriesItem {
   wordBudget: number;
   slideBudget: number;
   sourcePriorities: string[];
+  sourceDeck?: string;
+  sourceDecks?: string[];
   deckStrategy: "enhance-existing" | "create-new";
   scriptStatus: "not-started" | "draft" | "approved";
   deliverables: string[];
@@ -110,7 +112,9 @@ export interface ProjectManifest {
 export interface PlanAnswers {
   audience: string;
   desiredAction: string;
-  outputCount: number;
+  outputCount?: number;
+  outputMode?: "auto" | "one-per-powerpoint" | "custom";
+  sourceGroups?: string[][];
   totalDurationSeconds?: number;
   perOutputDurationSeconds?: number[];
   style?: string;

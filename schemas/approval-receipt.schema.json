@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://narrated-deck.studio/schemas/approval-receipt.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "gate", "subjectHash", "decision", "actor", "decidedAt"],
+  "properties": { "schemaVersion": { "const": 1 }, "gate": { "enum": ["plan", "deck", "voice", "release"] }, "subjectHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "decision": { "enum": ["approved", "invalidated"] }, "actor": { "type": "string", "minLength": 1 }, "decidedAt": { "type": "string", "format": "date-time" }, "reason": { "type": "string" } }
+}

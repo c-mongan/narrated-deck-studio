@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entry = path.join(root, "mcpb", "server", "src", "mcp-server.js");
 const transport = new StdioClientTransport({ command: process.execPath, args: [entry], cwd: root, stderr: "pipe" });
-const client = new Client({ name: "narrated-deck-studio-smoke", version: "0.2.0" });
+const client = new Client({ name: "narrated-deck-studio-smoke", version: "0.3.0" });
 try {
   await client.connect(transport);
   const response = await client.listTools();

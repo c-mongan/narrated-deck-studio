@@ -1,23 +1,25 @@
 ---
 name: narrated-deck-studio
-description: Turn a user-approved folder of PowerPoints, documents, scripts and authorised voice material into a reviewed series of editable narrated PowerPoints and captioned videos. Use for Cowork-first narrated deck creation, improvement, voice cloning, alignment, or revisions.
+description: Create reviewed narrated decks and videos from folders.
+version: "0.3.0"
+author: Narrated Deck Studio contributors
 license: MIT
+platforms: [macos, windows, linux]
 metadata:
-  author: Narrated Deck Studio contributors
-  version: "0.2.0"
   hermes:
-    tags: [powerpoint, narration, voice, video, cowork, local-first]
+    category: creative
+    tags: [powerpoint, narration, voice, video, local-first]
 ---
 
 # Narrated Deck Studio
 
-Guide a non-technical user from a folder of source material to vetted narrated presentations. Use the Narrated Deck Studio MCP tools when available. On Codex or Hermes, use the matching `nds` CLI commands while preserving the same approval contract.
+Guide a user from a folder of source material to vetted narrated presentations. The workflow and approval semantics are identical in Codex, Hermes Agent and Claude Cowork. Prefer the Narrated Deck Studio MCP tools on every host; use the matching `nds` CLI only as a developer fallback.
 
 ## The experience
 
 Speak plainly. Never ask the user to edit JSON, run terminal commands, choose model parameters, or inspect internal file paths. Explain what was found, ask only consequential questions, and always say what will happen before requesting approval.
 
-The first user may have multiple unrelated files. Do not assume the first PowerPoint or script is authoritative. Inventory everything relevant, identify conflicts and duplication, and ask which audience and outcome should drive the series.
+The user may have multiple unrelated files. Do not assume the first PowerPoint or script is authoritative. Inventory everything relevant, identify conflicts and duplication, and ask which audience and outcome should drive the series.
 
 ## Hard safety boundaries
 
@@ -49,13 +51,15 @@ Do not generate anything yet.
 Ask for:
 
 - audience and what they should understand, decide or do;
-- how many PowerPoints/videos are wanted;
+- whether to make one narrated deliverable set per discovered PowerPoint (the default), combine decks, split a deck, or use a custom output count;
 - total or per-item duration limits;
 - whether existing decks should be improved or merely used as evidence;
 - preferred visual tone or brand constraints;
 - intended authorised voice source.
 
 Call `draft_series_plan`. Explain the proposed split, slide/word budgets, source priorities, and three genuinely different creative territories. If the plan has unanswered questions, resolve them and redraft it.
+
+When several PowerPoints are present and the user does not request a different grouping, use `outputMode: one-per-powerpoint`. Every source deck must map to its own `SeriesItem`, and every item must ultimately produce its own PPTX, PPSX, MP4, VTT and SRT.
 
 Call `open_review` and ask the user to approve Gate 1 in the local page. Stop until project status shows `plan_approved`.
 

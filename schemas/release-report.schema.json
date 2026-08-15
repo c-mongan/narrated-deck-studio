@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://narrated-deck.studio/schemas/release-report.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "checkedAt", "passed", "blockers", "items", "disclosurePresent", "nativePlaybackRequired"],
+  "properties": {
+    "schemaVersion": { "const": 1 }, "checkedAt": { "type": "string", "format": "date-time" }, "passed": { "type": "boolean" }, "blockers": { "type": "array", "items": { "type": "string" } },
+    "items": { "type": "array", "items": { "type": "object" } }, "disclosurePresent": { "type": "boolean" }, "nativePlaybackRequired": { "type": "boolean" }
+  }
+}

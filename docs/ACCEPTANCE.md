@@ -8,6 +8,7 @@
 - Exact-artifact approval and downstream invalidation behavior.
 - Caption and continuous-master PowerPoint script generation.
 - MCPB manifest validation and packaging.
+- Exact-hash PPT Master installation and Codex/Hermes skill registration.
 
 ## Requires installed local engines
 
@@ -16,6 +17,12 @@
 - Real blind voice calibration and two full takes.
 - Alignment confidence plus human semantic review.
 - Duration, packet continuity and sampled chapter/slide checks on real outputs.
+
+## Host acceptance
+
+- Codex and Hermes must connect to the same installed eight-tool MCP runtime and discover the same portable skill.
+- Cowork must install the signed MCPB and expose the same behavior; it is an additional host adapter, not the only workflow.
+- A folder containing N PowerPoints defaults to N independently planned presentations and N corresponding video/caption/deck deliverable sets unless the user explicitly approves grouping or splitting.
 
 ## Release blockers
 

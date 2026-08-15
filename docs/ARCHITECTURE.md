@@ -2,8 +2,9 @@
 
 ```mermaid
 flowchart TD
-  A["Dad selects a scoped folder in Cowork"] --> B["Portable Agent Skill"]
-  B --> C["Local MCPB: eight narrow tools"]
+  A["User selects or names a scoped folder"] --> B["Portable Agent Skill"]
+  B --> C["Local MCP server: eight narrow tools"]
+  X["Codex / Hermes / Cowork"] --> B
   C --> D["TypeScript orchestrator"]
   D --> E["Safe inventory and extraction"]
   E --> F["Series plan"]
@@ -27,7 +28,7 @@ flowchart TD
 
 | Component | Owns | Must not own |
 |---|---|---|
-| Cowork skill | Conversation, questions, explanations | Approval or arbitrary commands |
+| Host skill | Conversation, questions, explanations in Codex, Hermes or Cowork | Approval or arbitrary commands |
 | MCP server | Narrow local capabilities and redacted status | Shell passthrough, unrestricted paths, profile IDs |
 | Orchestrator | State, receipts, invalidation, resumability, assembly | Creative or consent claims |
 | World Class Decks | Briefs, capability checks, audit, render, contact sheet, visual QA | Native authoring engine |
@@ -39,6 +40,8 @@ flowchart TD
 ## Persistent model
 
 Each source folder has a private `.narrated-deck-studio` workspace unless an external workspace is supplied. Git-managed source folders require an explicit external workspace. `project.json`, `inventory.json`, `plan.json`, review subjects and reports are atomic JSON files. `approval-receipts.ndjson` and `revisions.ndjson` are append-only.
+
+Planning defaults to one `SeriesItem` per discovered PowerPoint. Each item keeps its own source-deck mapping, script, approved continuous master, timeline and deliverable directory. An explicit custom plan may combine or split sources, but it cannot silently drop a discovered deck.
 
 Approvals bind to exact SHA-256 hashes. A plan, deck, script, master or timeline revision invalidates that gate and all dependent gates. Production stages only run from their exact preceding approved state.
 

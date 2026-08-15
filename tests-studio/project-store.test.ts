@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { approveGate, artifactHash, createProject, invalidateApprovals, savePlan } from "../src/project-store.js";
+import { requestRevision } from "../src/revisions.js";
 import type { SeriesPlan } from "../src/types.js";
 
 async function plannedProject() {
   const source = await mkdtemp(path.join(os.tmpdir(), "nds-project-"));
   const manifest = await createProject(source);
-  const plan: SeriesPlan = { schemaVersion: 1, createdAt: new Date().toISOString(), audience: "Dad", desiredAction: "Understand", style: "calm", voiceSource: "preset", disclosure: "AI voice", conceptTerritories: [], unresolvedQuestions: [], items: [{ id: "item-01", title: "One", purpose: "Explain", targetDurationSeconds: 60, wordBudget: 145, slideBudget: 4, sourcePriorities: [], deckStrategy: "create-new", scriptStatus: "not-started", deliverables: ["pptx"] }] };
+  const plan: SeriesPlan = { schemaVersion: 1, createdAt: new Date().toISOString(), audience: "Dad", desiredAction: "Understand", style: "calm", voiceSource: "preset", disclosure: "AI voice", conceptTerritories: ["one", "two", "three"].map((id) => ({ id, name: id, direction: id })), unresolvedQuestions: [], items: [{ id: "item-01", title: "One", purpose: "Explain", targetDurationSeconds: 60, wordBudget: 145, slideBudget: 4, sourcePriorities: [], deckStrategy: "create-new", scriptStatus: "not-started", deliverables: ["pptx"] }] };
   await savePlan(manifest, plan);
   return manifest;
 }
@@ -37,4 +38,16 @@ test("Git-managed source folders require an external private workspace", async (
   const workspace = await mkdtemp(path.join(os.tmpdir(), "nds-external-workspace-"));
   const manifest = await createProject(source, workspace);
   assert.equal(manifest.workspaceRoot, workspace);
+});
+
+test("a conversational revision can cancel an in-flight local generation", async () => {
+  const manifest = await plannedProject();
+  const hash = await artifactHash(manifest, "plan");
+  await approveGate(manifest, "plan", "Dad", hash);
+  await requestRevision(manifest, "plan", "Use a shorter series", "Dad", true);
+  const marker = path.join(manifest.workspaceRoot, "private", "cancel-running");
+  assert.equal((await stat(marker)).mode & 0o777, 0o600);
+  assert.match(await readFile(marker, "utf8"), /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(manifest.approvals.plan, undefined);
+  assert.equal(manifest.state, "planned");
 });

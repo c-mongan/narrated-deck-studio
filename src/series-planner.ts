@@ -3,24 +3,52 @@ import type { InventoryReport, PlanAnswers, SeriesItem, SeriesPlan } from "./typ
 
 const DEFAULT_WPM = 145;
 
-function durations(answers: PlanAnswers): number[] {
-  if (!Number.isInteger(answers.outputCount) || answers.outputCount < 1 || answers.outputCount > 24) {
+function resolvedOutputCount(inventory: InventoryReport, answers: PlanAnswers): number {
+  const deckCount = inventory.items.filter((item) => item.kind === "powerpoint").length;
+  if (answers.sourceGroups) return answers.sourceGroups.length;
+  if (answers.outputMode === "one-per-powerpoint") {
+    if (deckCount === 0) throw new Error("One-per-PowerPoint mode requires at least one PowerPoint");
+    return deckCount;
+  }
+  if (answers.outputMode === "custom") {
+    if (answers.outputCount === undefined) throw new Error("Custom output mode requires an output count");
+    return answers.outputCount;
+  }
+  if (answers.outputCount !== undefined) return answers.outputCount;
+  return deckCount > 0 ? deckCount : 1;
+}
+
+function durations(answers: PlanAnswers, outputCount: number): number[] {
+  if (!Number.isInteger(outputCount) || outputCount < 1 || outputCount > 24) {
     throw new Error("Output count must be a whole number from 1 to 24");
   }
   if (answers.perOutputDurationSeconds) {
-    if (answers.perOutputDurationSeconds.length !== answers.outputCount) throw new Error("One duration is required for every output");
+    if (answers.perOutputDurationSeconds.length !== outputCount) throw new Error("One duration is required for every output");
     if (answers.perOutputDurationSeconds.some((value) => !Number.isFinite(value) || value < 30 || value > 7200)) throw new Error("Each output duration must be 30 seconds to 2 hours");
     return answers.perOutputDurationSeconds;
   }
-  const total = answers.totalDurationSeconds ?? answers.outputCount * 300;
-  if (!Number.isFinite(total) || total < answers.outputCount * 30 || total > answers.outputCount * 7200) throw new Error("Total duration is outside the supported range");
-  const each = Math.floor(total / answers.outputCount);
-  return Array.from({ length: answers.outputCount }, (_, index) => index === answers.outputCount - 1 ? total - each * index : each);
+  const total = answers.totalDurationSeconds ?? outputCount * 300;
+  if (!Number.isFinite(total) || total < outputCount * 30 || total > outputCount * 7200) throw new Error("Total duration is outside the supported range");
+  const each = Math.floor(total / outputCount);
+  return Array.from({ length: outputCount }, (_, index) => index === outputCount - 1 ? total - each * index : each);
 }
 
 export function draftSeriesPlan(inventory: InventoryReport, answers: PlanAnswers): SeriesPlan {
-  const allocated = durations(answers);
   const existingDecks = inventory.items.filter((item) => item.kind === "powerpoint");
+  const deckPaths = new Set(existingDecks.map((deck) => deck.relativePath));
+  if (answers.sourceGroups) {
+    if (answers.sourceGroups.length === 0 || answers.sourceGroups.some((group) => group.length === 0)) throw new Error("Every source group must contain at least one PowerPoint");
+    const groupedPaths = answers.sourceGroups.flat();
+    const unknown = groupedPaths.filter((pathname) => !deckPaths.has(pathname));
+    if (unknown.length) throw new Error(`Unknown PowerPoint in source groups: ${unknown.join(", ")}`);
+    const omitted = [...deckPaths].filter((pathname) => !groupedPaths.includes(pathname));
+    if (omitted.length) throw new Error(`Custom grouping cannot silently omit PowerPoints: ${omitted.join(", ")}`);
+    if (answers.outputCount !== undefined && answers.outputCount !== answers.sourceGroups.length) throw new Error("Output count must match the number of source groups");
+  } else if (existingDecks.length > 0 && answers.outputCount !== undefined && answers.outputCount !== existingDecks.length) {
+    throw new Error("Provide sourceGroups when combining or splitting multiple PowerPoints");
+  }
+  const outputCount = resolvedOutputCount(inventory, answers);
+  const allocated = durations(answers, outputCount);
   const usefulSources = inventory.items.filter((item) => ["powerpoint", "document", "text", "data"].includes(item.kind));
   const unresolvedQuestions: string[] = [];
   if (!answers.audience.trim()) unresolvedQuestions.push("Who should watch these presentations?");
@@ -30,16 +58,19 @@ export function draftSeriesPlan(inventory: InventoryReport, answers: PlanAnswers
   }
 
   const items: SeriesItem[] = allocated.map((seconds, index) => {
-    const matchingDeck = existingDecks[index];
+    const groupedDeckPaths = answers.sourceGroups?.[index] ?? (existingDecks[index] ? [existingDecks[index]!.relativePath] : []);
+    const matchingDeck = groupedDeckPaths.length === 1 ? existingDecks.find((deck) => deck.relativePath === groupedDeckPaths[0]) : undefined;
     const slideBudget = Math.max(3, Math.min(60, Math.round(seconds / 18)));
     return {
       id: `item-${String(index + 1).padStart(2, "0")}`,
-      title: answers.outputCount === 1 ? "Main presentation" : `Presentation ${index + 1}`,
+      title: matchingDeck ? titleFromSource(matchingDeck.relativePath) : groupedDeckPaths.length > 1 ? `Combined presentation ${index + 1}` : outputCount === 1 ? "Main presentation" : `Presentation ${index + 1}`,
       purpose: answers.desiredAction || "Clarify the main message for the audience",
       targetDurationSeconds: seconds,
       wordBudget: Math.floor(seconds * DEFAULT_WPM / 60),
       slideBudget,
-      sourcePriorities: matchingDeck ? [matchingDeck.relativePath] : usefulSources.slice(index, index + 6).map((item) => item.relativePath),
+      sourcePriorities: groupedDeckPaths.length ? groupedDeckPaths : usefulSources.slice(index, index + 6).map((item) => item.relativePath),
+      sourceDeck: matchingDeck?.relativePath,
+      sourceDecks: groupedDeckPaths,
       deckStrategy: matchingDeck ? "enhance-existing" : "create-new",
       scriptStatus: "not-started",
       deliverables: ["pptx", "ppsx", "mp4", "vtt", "srt"],

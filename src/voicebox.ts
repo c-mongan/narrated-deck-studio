@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, stat, writeFile } from "node:fs/promises";
 
 function canonicalVoiceboxUrl(input: string): string {
   let url: URL;
@@ -21,6 +21,7 @@ interface VoiceboxGenerationOptions {
   maxChunkChars?: number;
   crossfadeMs?: number;
   timeoutMs?: number;
+  cancelFile?: string;
 }
 
 async function checkedFetch(url: string, init?: RequestInit): Promise<Response> {
@@ -29,10 +30,12 @@ async function checkedFetch(url: string, init?: RequestInit): Promise<Response> 
   return response;
 }
 
-export async function generateVoiceboxTake(options: VoiceboxGenerationOptions): Promise<string> {
+export interface VoiceGenerationResult { generationId: string; engine: string; modelSize: string; seed: number; voiceboxVersion: string }
+
+export async function generateVoiceboxTake(options: VoiceboxGenerationOptions): Promise<VoiceGenerationResult> {
   const base = canonicalVoiceboxUrl(options.url ?? process.env.VOICEBOX_URL ?? "http://127.0.0.1:17493");
   const health = await checkedFetch(`${base}/health`);
-  const healthBody = await health.json() as { status?: string };
+  const healthBody = await health.json() as { status?: string; version?: string };
   if (healthBody.status !== "healthy") throw new Error("Voicebox is not healthy");
   const text = await readFile(options.scriptPath, "utf8");
   if (!text.trim()) throw new Error("Narration script is empty");
@@ -57,6 +60,10 @@ export async function generateVoiceboxTake(options: VoiceboxGenerationOptions): 
   const started = Date.now();
   const timeoutMs = options.timeoutMs ?? 30 * 60_000;
   while (true) {
+    if (options.cancelFile && await stat(options.cancelFile).then(() => true, () => false)) {
+      await fetch(`${base}/generate/${created.id}/cancel`, { method: "POST" }).catch(() => undefined);
+      throw new Error("Voicebox generation was cancelled by the user");
+    }
     if (Date.now() - started > timeoutMs) {
       await fetch(`${base}/generate/${created.id}/cancel`, { method: "POST" }).catch(() => undefined);
       throw new Error("Voicebox generation timed out and was cancelled");
@@ -70,5 +77,5 @@ export async function generateVoiceboxTake(options: VoiceboxGenerationOptions): 
   }
   const audio = await checkedFetch(`${base}/audio/${created.id}`);
   await writeFile(options.outputPath, Buffer.from(await audio.arrayBuffer()), { mode: 0o600 });
-  return created.id;
+  return { generationId: created.id, engine: options.engine ?? "qwen", modelSize: options.modelSize ?? "1.7B", seed: options.seed, voiceboxVersion: healthBody.version ?? "unknown" };
 }

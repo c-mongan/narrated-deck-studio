@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://narrated-deck.studio/schemas/series-plan.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "createdAt", "audience", "desiredAction", "style", "voiceSource", "disclosure", "items", "conceptTerritories", "unresolvedQuestions"],
+  "properties": {
+    "schemaVersion": { "const": 1 }, "createdAt": { "type": "string", "format": "date-time" }, "audience": { "type": "string" }, "desiredAction": { "type": "string" }, "style": { "type": "string" },
+    "voiceSource": { "enum": ["local-audio", "authorized-youtube", "preset"] }, "disclosure": { "type": "string", "minLength": 1 },
+    "items": { "type": "array", "minItems": 1, "maxItems": 24, "items": { "$ref": "#/$defs/item" } },
+    "conceptTerritories": { "type": "array", "minItems": 3, "items": { "type": "object", "additionalProperties": false, "required": ["id", "name", "direction"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "direction": { "type": "string" } } } },
+    "unresolvedQuestions": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": { "item": { "type": "object", "additionalProperties": false, "required": ["id", "title", "purpose", "targetDurationSeconds", "wordBudget", "slideBudget", "sourcePriorities", "deckStrategy", "scriptStatus", "deliverables"], "properties": {
+    "id": { "type": "string" }, "title": { "type": "string" }, "purpose": { "type": "string" }, "targetDurationSeconds": { "type": "number", "minimum": 30 }, "wordBudget": { "type": "integer", "minimum": 1 }, "slideBudget": { "type": "integer", "minimum": 1 },
+    "sourcePriorities": { "type": "array", "items": { "type": "string" } }, "sourceDeck": { "type": "string" }, "sourceDecks": { "type": "array", "items": { "type": "string" } },
+    "deckStrategy": { "enum": ["enhance-existing", "create-new"] }, "scriptStatus": { "enum": ["not-started", "draft", "approved"] }, "deliverables": { "type": "array", "items": { "type": "string" } }
+  } } }
+}

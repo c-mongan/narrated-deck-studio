@@ -1,6 +1,6 @@
 {
   "name": "narrated-deck-studio",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "bin": {
@@ -19,6 +19,8 @@
     "mcp": "tsx src/mcp-server.ts",
     "smoke:mcp": "node scripts/smoke_mcp.mjs",
     "mcp:build": "npm run build && node scripts/prepare_mcpb.mjs && mcpb validate mcpb/manifest.json && mcpb pack mcpb dist/narrated-deck-studio.mcpb",
+    "hosts:install": "node scripts/install_agent_hosts.mjs",
+    "engines:install": "node scripts/install_external_engines.mjs",
     "ingest": "node scripts/ingest_media.mjs",
     "match-slides": "node scripts/match_slides.mjs",
     "voicebox:start": "node scripts/start_voicebox_server.mjs",

@@ -3,7 +3,7 @@
   "manifest_version": "0.4",
   "name": "narrated-deck-studio",
   "display_name": "Narrated Deck Studio",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Consent-first local production of vetted narrated PowerPoints and videos from a folder of source material.",
   "long_description": "Lets Claude Cowork safely inventory an approved folder, clarify and review a series plan, orchestrate editable PowerPoint authoring, clone an authorised voice locally, align narration, and release reviewed PPTX, PPSX and MP4 deliverables. Human approval is required at four gates.",
   "author": { "name": "Narrated Deck Studio contributors" },

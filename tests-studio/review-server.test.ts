@@ -10,7 +10,7 @@ import type { SeriesPlan } from "../src/types.js";
 test("review server is token protected and records plan approval", async () => {
   const source = await mkdtemp(path.join(os.tmpdir(), "nds-review-"));
   const manifest = await createProject(source);
-  const plan: SeriesPlan = { schemaVersion: 1, createdAt: new Date().toISOString(), audience: "Dad", desiredAction: "Learn", style: "calm", voiceSource: "preset", disclosure: "AI", conceptTerritories: [], unresolvedQuestions: [], items: [{ id: "item-01", title: "One", purpose: "Learn", targetDurationSeconds: 60, wordBudget: 145, slideBudget: 4, sourcePriorities: [], deckStrategy: "create-new", scriptStatus: "not-started", deliverables: ["pptx"] }] };
+  const plan: SeriesPlan = { schemaVersion: 1, createdAt: new Date().toISOString(), audience: "Dad", desiredAction: "Learn", style: "calm", voiceSource: "preset", disclosure: "AI", conceptTerritories: ["one", "two", "three"].map((id) => ({ id, name: id, direction: id })), unresolvedQuestions: [], items: [{ id: "item-01", title: "One", purpose: "Learn", targetDurationSeconds: 60, wordBudget: 145, slideBudget: 4, sourcePriorities: [], deckStrategy: "create-new", scriptStatus: "not-started", deliverables: ["pptx"] }] };
   await savePlan(manifest, plan);
   const handle = await startReviewServer(manifest.workspaceRoot);
   try {

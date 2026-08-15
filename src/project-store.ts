@@ -5,7 +5,7 @@ import { APPROVAL_GATES, type ApprovalGate, type ApprovalReceipt, type Inventory
 import { gateArtifact, INVENTORY_FILE, MANIFEST_FILE, PLAN_FILE, RECEIPTS_FILE, WORKSPACE_DIR } from "./constants.js";
 import { hashFile, hashJson } from "./hash.js";
 import { canonicalExistingDirectory, ensurePrivateDirectory, safeProjectId } from "./security.js";
-import { validateJsonFile } from "./validation.js";
+import { validateJsonFile, validateJsonValue } from "./validation.js";
 
 const STATE_FOR_APPROVAL: Record<ApprovalGate, ProjectState> = {
   plan: "plan_approved",
@@ -86,10 +86,12 @@ export async function saveProject(manifest: ProjectManifest): Promise<void> {
 
 export async function saveInventory(manifest: ProjectManifest, inventory: InventoryReport): Promise<void> {
   if (inventory.sourceRoot !== manifest.sourceRoot) throw new Error("Inventory root does not match project source root");
+  await validateJsonValue("inventory", inventory);
   await atomicWriteJson(path.join(manifest.workspaceRoot, INVENTORY_FILE), inventory);
 }
 
 export async function savePlan(manifest: ProjectManifest, plan: SeriesPlan, answers?: PlanAnswers): Promise<void> {
+  await validateJsonValue("series-plan", plan);
   if (manifest.approvals.plan) await invalidateApprovals(manifest, "plan", "Series plan changed");
   manifest.audience = plan.audience;
   manifest.desiredAction = plan.desiredAction;
@@ -110,6 +112,7 @@ export async function savePlan(manifest: ProjectManifest, plan: SeriesPlan, answ
 }
 
 async function appendReceipt(manifest: ProjectManifest, receipt: ApprovalReceipt): Promise<void> {
+  await validateJsonValue("approval-receipt", receipt);
   const pathname = path.join(manifest.workspaceRoot, RECEIPTS_FILE);
   await appendFile(pathname, `${JSON.stringify(receipt)}\n`, { encoding: "utf8", mode: 0o600 });
   if (process.platform !== "win32") await chmod(pathname, 0o600);
@@ -134,6 +137,7 @@ export async function approveGate(manifest: ProjectManifest, gate: ApprovalGate,
       const candidates = Array.isArray(item.candidates) ? item.candidates as Array<Record<string, unknown>> : [];
       const selected = candidates.find((candidate) => candidate.id === item.selectedCandidate);
       if (!selected || selected.auditPassed !== true) throw new Error("Every selected deck must pass deterministic audit before approval");
+      if (selected.notesPresent !== true) throw new Error("Every selected deck must contain useful speaker notes before approval");
     }
   }
   if (gate === "voice") {
