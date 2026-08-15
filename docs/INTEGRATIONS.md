@@ -1,36 +1,40 @@
 # Integrations
 
+## PPT Master — preferred expressive authoring engine
+
+Project: `hugohe3/ppt-master`.
+
+Use for flagship free-design decks when native PowerPoint depth matters. Current upstream capabilities include editable SVG→DrawingML authoring, masters/layouts, optional native charts/tables, source/template workflows, native transitions, optional object animations, notes/narration and image acquisition/generation.
+
+World Class Decks intentionally does **not** vendor PPT Master. Pin a known-good revision in production, rerun WCD evals on upgrade, and store the tested commit in provenance.
+
+The `world_class_decks.adapters.ppt_master` module provides discovery/script invocation helpers; the upstream skill remains the source of truth.
+
 ## hands-on-deck
 
 Project: `EveryInc/hands-on-deck`.
 
-This repo detects its `deck` CLI when installed. We intentionally do not vendor it. Pin a tested upstream commit in your environment/lockfile for production use.
+Recommended complementary role:
 
-Recommended role:
-- HTML/CSS-driven composition;
-- native editable PPTX output;
-- additional upstream lint/geometry checks.
+- inspect/edit existing PPTX objects;
+- atomic patches;
+- HTML/CSS-driven native composition where useful;
+- geometry/overlap checks;
+- targeted repair after visual review.
 
 ## PptxGenJS
 
-Use for chart-heavy or programmatic decks. Keep layout helpers and theme values centralized.
+Useful for deterministic data-heavy decks or when a custom codebase already standardizes on it. `proyecto26/slides-ai-plugin` remains a useful helper reference for text measurement, theming and validation.
 
-Optional helper project: `proyecto26/slides-ai-plugin` for adaptive sizing and validation patterns.
+## Image generation
 
-## Anti-slop writing skill
+Use the host agent's current image-generation capability or PPT Master's configured image backend. Inspect outputs before acceptance. Generated visuals should share a deck-level art direction and should not contain critical numeric/text evidence.
 
-The built-in detector is intentionally small and deterministic. For agentic rewriting, install a dedicated compatible writing skill such as `adewale/anti-slop-writing`, then keep this repo's deterministic checks as a backstop.
+## Microsoft PowerPoint
 
-## Codex
+PowerPoint is the final rendering/playback authority for PowerPoint delivery. The adapter provides:
 
-Install/copy `skills/world-class-deck` into the appropriate Codex skills location. The skill is designed for progressive disclosure: core workflow in `SKILL.md`, detailed rubrics under `references/`.
+- native PNG export through COM;
+- a conservative motion-plan applicator for named shapes using documented PowerPoint animation APIs.
 
-For images, use the host image-generation capability and require an inspection pass before accepting assets.
-
-## Hermes
-
-Hermes supports Agent Skills-style folders. Install this skill into the Hermes skills directory and use Hermes' vision capability for the independent rendered-slide review.
-
-## Microsoft PowerPoint final renderer
-
-LibreOffice is suitable for CI and early QA, but PowerPoint itself is the strongest final acceptance renderer for PowerPoint-bound users. `world_class_decks.adapters.powerpoint.powershell_export_script` provides a small COM export script generator for Windows runners.
+PPT Master should be preferred when its own native motion pipeline meets the need. The COM adapter is a narrow fallback/post-process, not a replacement authoring engine.

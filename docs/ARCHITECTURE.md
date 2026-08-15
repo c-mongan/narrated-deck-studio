@@ -2,65 +2,48 @@
 
 ## Goal
 
-Make PowerPoint production behave like a testable build pipeline while preserving room for genuine art direction.
+Build presentations as **creative products plus testable software artifacts**. Correctness/QA is the floor. Creative authorship and comparative quality are the ceiling.
 
-```text
-User brief / source material
-          │
-          ▼
-   ┌──────────────┐
-   │ Deck director│  story + evidence plan
-   └──────┬───────┘
-          ▼
-   ┌──────────────┐
-   │ Copy editor  │  anti-slop pass
-   └──────┬───────┘
-          ▼
-   ┌──────────────┐
-   │ Art director │  visual_direction.json
-   └──────┬───────┘
-          ▼
-   ┌──────────────┐
-   │ Asset maker  │  source + generated assets
-   └──────┬───────┘
-          ▼
-   ┌──────────────┐
-   │ PPTX builder │  one primary writer
-   └──────┬───────┘
-          ▼
-   ┌──────────────┐
-   │ Static audit │  deterministic hard gates
-   └──────┬───────┘
-          ▼
-   ┌──────────────┐
-   │ Render       │  LibreOffice; PowerPoint final
-   └──────┬───────┘
-          ▼
-   ┌──────────────┐
-   │ Fresh critic │  full-res + contact sheet
-   └──────┬───────┘
-          │ findings
-          └──────────────► repair loop
-```
+## Layers
 
-## Why separate deterministic and visual QA?
+### 1. Evidence / story
 
-Geometry tests catch cheap, unambiguous failures early. Vision review catches perceptual failures that coordinate checks cannot: hierarchy, bad crops, awkward whitespace, visual repetition, and “AI-looking” composition. Neither replaces the other.
+Ground claims, define audience action, and shape the argument before design.
 
-## Why adapters instead of vendoring?
+### 2. Creative exploration
 
-Upstream PowerPoint engines evolve quickly. This repo keeps stable contracts around them instead of copying their internals. That gives us clean upgrades, smaller diffs, and clearer licensing.
+Generate at least three distinct creative territories for flagship free-design work. Select one using explicit criteria rather than blending all concepts into generic compromise.
 
-## Writer selection
+### 3. Theme / typography / imagery / motion
 
-### `hands-on-deck`
-Best default when visual composition and native editability dominate.
+The selected territory becomes a system: font roles, type scale, color roles, spacing/grid, image treatment, chart system, shape language, signature motif, section variants and motion grammar.
 
-### PptxGenJS
-Best default when native charts, programmatic data graphics, or highly deterministic object creation dominate.
+### 4. Authoring engine
 
-Use one primary writer for a deck unless there is a compelling reason otherwise.
+**Preferred flagship engine: PPT Master.** It owns expressive native PPTX generation, masters/layouts, DrawingML conversion, optional native charts/tables, templates, transitions/animations and narration capabilities.
+
+**hands-on-deck** is a complementary surgical editor and geometry/inspection layer.
+
+**PptxGenJS** remains useful when a project is primarily programmatic chart/layout code.
+
+The WCD repo owns none of those upstream engines; it owns contracts, orchestration and acceptance criteria.
+
+### 5. Deterministic QA
+
+Fast checks catch unequivocal defects: out-of-bounds shapes, placeholders, likely collisions, density/tiny-copy warnings and copy anti-patterns. `wcd capabilities` separately inventories native PPTX depth (theme/master/layout/fonts/charts/media/motion markup).
+
+### 6. Rendered-pixel QA
+
+A fresh visual critic inspects full-resolution slide renders and a contact sheet. This catches perceptual failures geometry cannot: hierarchy, bad crops, weak art direction, repetitive composition, awkward whitespace and “AI deck” sameness.
+
+### 7. Native PowerPoint acceptance
+
+When PowerPoint is the target renderer, it is the final fidelity authority. Motion must be played in native PowerPoint because a static render cannot validate timing.
+
+### 8. Blind human benchmark
+
+A comparative judge sees randomized anonymized A/B renders from candidate and curated human references. This is the only supported path for a “human-beating” claim.
 
 ## Trust boundaries
 
-Generated assets and external documents are untrusted inputs. Never execute macros from source decks. Never embed secrets in speaker notes or image prompts. See `SECURITY.md`.
+Generated imagery, external references and input decks are untrusted. Never execute macros from source decks. Do not redistribute copyrighted benchmark decks. Store only references the user/project is licensed to use. Do not embed secrets in notes/image prompts.

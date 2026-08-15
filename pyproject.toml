@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "world-class-decks"
-version = "0.1.0"
+version = "0.2.0"
 description = "Agent skill and QA pipeline for visually excellent, editable PowerPoint decks."
 readme = "README.md"
 requires-python = ">=3.11"

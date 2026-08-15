@@ -1,0 +1,34 @@
+{
+  "comparisons": [
+    {
+      "candidate": "generated-a",
+      "reference": "human-editorial-01",
+      "eligible": true,
+      "winner": "candidate",
+      "dimension_preference": {
+        "art_direction": 1,
+        "typography": 1,
+        "composition": 1,
+        "imagery": 0,
+        "story": 1,
+        "specificity": 1,
+        "motion": 0
+      }
+    },
+    {
+      "candidate": "generated-a",
+      "reference": "human-keynote-02",
+      "eligible": true,
+      "winner": "tie",
+      "dimension_preference": {
+        "art_direction": 0,
+        "typography": -1,
+        "composition": 1,
+        "imagery": 1,
+        "story": 0,
+        "specificity": 1,
+        "motion": -1
+      }
+    }
+  ]
+}

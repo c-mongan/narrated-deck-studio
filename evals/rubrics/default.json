@@ -1,13 +1,18 @@
 {
-  "pass_threshold": 85,
+  "pass_threshold": 90,
   "weights": {
-    "story": 0.22,
-    "visual_quality": 0.24,
-    "specificity": 0.12,
-    "evidence": 0.16,
-    "editability": 0.08,
-    "copy_quality": 0.10,
-    "consistency": 0.08
+    "story": 0.15,
+    "visual_quality": 0.13,
+    "art_direction": 0.12,
+    "typography": 0.10,
+    "composition": 0.10,
+    "imagery": 0.09,
+    "specificity": 0.08,
+    "evidence": 0.08,
+    "copy_quality": 0.06,
+    "editability": 0.04,
+    "consistency": 0.03,
+    "motion": 0.02
   },
   "hard_gates": [
     "opens",

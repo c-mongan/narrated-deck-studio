@@ -1,21 +1,19 @@
 # Design provenance and upstream projects
 
-This repository does not vendor the projects below. They informed the architecture and/or are supported as optional integrations. Review their current license and documentation before production pinning.
+This repository does not vendor the projects below. They informed the architecture and/or are supported as optional integrations. Pin/test upstream revisions before production use.
 
 ## Primary upstreams
 
-- EveryInc/hands-on-deck — agent-native editable PowerPoint authoring and geometry QA. Tested research snapshot observed at commit `a24b996ecff6393ccf39c4fee2b88c493fb0b693` (2026-08-04).
-- siril9/presentation-skill — structured planning/workspace and iterative render-review concepts.
-- adewale/anti-slop-writing — dedicated anti-generic-writing skill and eval philosophy.
-- proyecto26/slides-ai-plugin — PptxGenJS sizing/validation patterns.
-- OpenAI skills / Codex skills documentation — progressive-disclosure skill structure and image-generation workflow.
-- Anthropic PowerPoint skill — adversarial render-and-inspect design guidance.
-- Hermes Agent skills / PowerPoint skill — Agent Skills compatibility and vision-based slide inspection pattern.
-
-## Research motivation
-
-Recent slide-agent benchmarks and systems reinforce the need for separate planning, editing, rendering, and visual evaluation rather than relying on a single generation pass. Keep benchmark-specific claims in research notes/evals rather than hard-coding them into runtime behavior.
+- **hugohe3/ppt-master** — preferred expressive authoring engine in v0.2: native DrawingML, masters/layouts, charts/tables, templates, transitions/animations, narration and image workflows. Research snapshot observed on 2026-08-15 at commit `a9850e57ec05bacff409cd213bb027e1a03117f8`.
+- **EveryInc/hands-on-deck** — surgical PowerPoint inspection/editing, HTML/CSS composition and geometry QA. Previously observed research snapshot `a24b996ecff6393ccf39c4fee2b88c493fb0b693` (2026-08-04).
+- **siril9/presentation-skill** — structured planning/workspace and iterative render-review concepts.
+- **adewale/anti-slop-writing** — anti-generic-writing skill/eval philosophy.
+- **proyecto26/slides-ai-plugin** — PptxGenJS sizing/validation patterns.
+- **OpenAI Codex skills / image generation docs** — progressive-disclosure skill and generated-asset inspection patterns.
+- **Anthropic PowerPoint skill** — adversarial render-and-inspect guidance.
+- **Hermes Agent PowerPoint/skills docs** — skill portability and vision-review pattern.
+- **Microsoft PowerPoint VBA object model docs** — native transition/animation APIs and enum values used by the narrow COM adapter.
 
 ## Upgrade policy
 
-Do not blindly track `main` for production. Pin a known-good upstream revision, rerun the eval suite, inspect render diffs, then upgrade deliberately.
+Do not blindly track `main`. Pin a known-good upstream revision, run static/unit tests, regenerate representative briefs, compare visual diffs, run pairwise benchmark slices, then upgrade deliberately.

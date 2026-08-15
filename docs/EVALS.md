@@ -1,65 +1,68 @@
 # Evaluation strategy
 
-A deck skill should be evaluated like software, not tuned by vibes against one demo.
+A deck skill should be evaluated like both **software** and **creative work**.
 
-## Test set
+## Layer 1 — deterministic gates
 
-`evals/briefs/` contains heterogeneous briefs. Add real anonymized briefs over time.
+- file opens;
+- requested page range/constraints respected;
+- no placeholder content;
+- no critical off-slide/overlap/overflow failures;
+- required sources/assets/citations present;
+- important text remains readable/editable;
+- native PowerPoint render succeeds when required.
 
-Keep a holdout set that is not used while editing prompts/rules.
+## Layer 2 — absolute rubric
 
-## Evaluation layers
+`wcd score-eval` uses these default dimensions:
 
-### 1. Deterministic gates
+- story 15%
+- visual quality 13%
+- art direction 12%
+- typography 10%
+- composition 10%
+- imagery 9%
+- specificity 8%
+- evidence 8%
+- copy quality 6%
+- editability 4%
+- consistency 3%
+- motion 2%
 
-- opens successfully;
-- slide count within requested range;
-- zero off-slide critical shapes;
-- no placeholders;
-- no critical overlaps/overflow;
-- required citations/assets present;
-- minimum text size policy passes where applicable.
+A `null` score means legitimately not applicable and its weight is renormalized. Default flagship pass threshold is 90, with hard gates overriding the weighted score.
 
-### 2. Instruction-following judge
+An absolute rubric is useful for regression diagnosis, **not for proving superiority to humans**.
 
-Does the deck satisfy the explicit brief, audience, required content, constraints, and source fidelity?
+## Layer 3 — blind pairwise benchmark
 
-### 3. Visual judge
+Render candidate and human-reference decks into anonymized sequences, randomize A/B order, and ask independent judges which is better overall plus per-dimension preferences.
 
-Use the independent visual QA rubric on rendered pixels.
+Use `wcd score-pairwise results.json` to calculate candidate point win rate and a Wilson 95% confidence interval.
 
-### 4. Story judge
+### Development bar
 
-Assess claim sequence, evidence quality, decision usefulness, and transitions.
+- >=5 valid comparisons;
+- candidate point win rate >=70%;
+- no correctness/layout hard-gate failure.
 
-### 5. Specificity / anti-slop judge
+### Serious human-beating claim
 
-Ask whether the copy and design could be transplanted unchanged to another topic. Penalize generic language and generic visual motifs.
-
-## Scoring
-
-Default weighted dimensions:
-
-- story 22%
-- visual quality 24%
-- specificity 12%
-- evidence 16%
-- editability 8%
-- copy quality 10%
-- consistency 8%
-
-Hard gates override weighted score.
-
-Use `wcd score-eval eval.json` to score a judge-produced evaluation record.
+- >=20 comparisons across multiple briefs and multiple elite references;
+- candidate point win rate >=70%;
+- lower 95% confidence bound >50%;
+- no meaningful holdout regression;
+- multiple independent judges/models where practical;
+- native-motion comparisons when motion is part of the claim.
 
 ## Regression protocol
 
-For every meaningful skill change:
+For each meaningful skill/engine change:
 
-1. run deterministic unit tests;
-2. generate at least 5 representative briefs;
-3. render all decks;
-4. run independent judges;
-5. compare score deltas and failure categories;
-6. inspect any large win/loss manually;
-7. do not merge if holdout quality regresses materially.
+1. run unit/static tests;
+2. generate multiple representative briefs;
+3. render every deck;
+4. run deterministic + capability checks;
+5. run independent visual/story judges;
+6. run pairwise reference comparisons on the flagship subset;
+7. inspect large wins/losses manually;
+8. reject changes that materially regress the holdout.

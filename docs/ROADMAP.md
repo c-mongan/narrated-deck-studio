@@ -1,31 +1,29 @@
 # Roadmap
 
-## v0.1 — included now
+## v0.2 — current
 
-- portable Agent Skill;
-- structured planning workspace;
-- deterministic PPTX auditor;
-- anti-slop detector;
-- renderer/contact sheet;
-- independent visual-review contract;
-- eval briefs and score runner;
-- adapters for external writers/final PowerPoint rendering;
-- CI/tests/docs.
+- creative territory tournament;
+- deck-specific creative strategy + theme system;
+- typography/theme doctrine;
+- image-source decision doctrine;
+- PPT Master expressive-authoring integration;
+- hands-on-deck retained for surgical edit/QA;
+- native PPTX capability inventory;
+- motion-plan contract + PowerPoint COM adapter;
+- richer aesthetic eval dimensions;
+- blind candidate-vs-human pairwise scoring + confidence interval.
 
-## v0.2 candidates
+## Next: prove the claim, don't add prompt cruft
 
-- richer OOXML collision semantics and z-order classification;
-- optional `hands-on-deck` structured lint parser;
-- font availability/substitution report;
-- contrast checker using rendered pixel sampling;
-- slide-diff visual regression runner;
-- OpenTelemetry spans around build/render/review/eval;
-- JSONL trace store for skill eval runs;
-- browser-based reviewer UI.
-
-## v0.3 candidates
-
-- learned style retrieval from an approved reference corpus;
-- automatic chart-type recommendation with evidence constraints;
-- PowerPoint Windows CI runner for true-render regression testing;
-- multi-model judge calibration and pairwise deck ranking.
+- curate a legally usable 20–50 deck elite human reference corpus;
+- create topic-matched reference slices (keynote/editorial/data/technical/etc.);
+- implement A/B render anonymization and randomization utility;
+- integrate 2–3 independent vision judges and judge-agreement metrics;
+- run full benchmark across 20+ briefs;
+- calibrate per-brief engine routing (PPT Master vs hands-on-deck/PptxGenJS);
+- add native PowerPoint Windows CI for render + playback smoke tests;
+- add font substitution / availability analysis across target machines;
+- add video capture of animated decks for motion judging;
+- add reference-deck style retrieval without copying protected content/trade dress;
+- add OpenTelemetry traces around generation/review/eval;
+- only after benchmark evidence supports it, raise the README claim.

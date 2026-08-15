@@ -1,27 +1,87 @@
 # World Class Decks
 
-An agent-native production system for **excellent, editable PowerPoint decks without AI slop**.
+An agent-native **creative direction, authoring orchestration, visual QA and benchmarking system** for exceptional editable PowerPoint decks.
 
-The repo is intentionally not another one-shot “prompt → .pptx” generator. It separates deck creation into explicit creative and QA stages:
+> **Quality bar:** “technically clean” is not enough. The target is a presentation with a specific creative point of view, bespoke typography/theme/image direction, native PowerPoint depth, disciplined motion, and enough comparative evidence to know whether it actually competes with elite human work.
 
-`brief → story → copy → art direction → assets → build → deterministic lint → render → independent visual review → repair → eval`
+## What changed in v0.2
 
-## Why this exists
+v0.1 proved the engineering loop: plan → build → lint → render → independent review → repair → eval. That is necessary, but it does not by itself produce a masterpiece.
 
-LLMs are good at producing slide-shaped text. They are much less reliable at producing a coherent story, disciplined typography, non-generic art direction, accurate layout, and a final `.pptx` that survives rendering. This repo treats a deck like a software artifact: structured inputs, deterministic checks, rendered-output inspection, independent review, and repeatable evals.
+v0.2 adds the missing creative system:
 
-## What is included
+- **three-territory creative exploration** before authoring;
+- a deck-specific `creative_strategy.json` and `theme_system.json`;
+- first-class typography and font-direction rules;
+- per-image source decisions and coherent generative art direction;
+- native motion planning and a PowerPoint COM motion adapter;
+- **PPT Master as the preferred expressive native authoring engine**;
+- hands-on-deck retained as surgical editing / geometry QA;
+- PPTX capability inspection for themes, masters, layouts, fonts, charts, media and timing markup;
+- higher-resolution visual/story/art-direction eval dimensions;
+- a **blind candidate-vs-human pairwise benchmark** with a statistical win-rate report;
+- a hard rule that “better than elite humans” can never be inferred from a self-score.
 
-- `skills/world-class-deck/SKILL.md` — portable Agent Skill for Codex/Hermes-style runtimes.
-- `src/world_class_decks/` — small Python CLI and production QA core.
-- deterministic `.pptx` audit for off-slide objects, likely collisions, tiny text, excessive copy, placeholders, and common generic-copy patterns.
-- LibreOffice → PDF → PNG rendering pipeline.
-- contact-sheet generation for whole-deck visual review.
-- JSON contracts for story, art direction, visual-review results, and eval results.
-- `hands-on-deck` and PptxGenJS adapter contracts without vendoring upstream projects.
-- evaluation runner with hard gates + weighted rubric scoring.
-- golden briefs covering executive, technical, fundraising, product, scientific, and financial decks.
-- CI, tests, architecture docs, contribution guide, threat model, and operating playbook.
+## Architecture
+
+```text
+source / brief / references
+          │
+          ▼
+  evidence + story director
+          │
+          ▼
+   3+ creative territories
+          │
+          ▼
+ creative director selects one
+          │
+          ├──── typography + theme system
+          ├──── image / asset direction
+          └──── motion direction
+          │
+          ▼
+ expressive PPTX authoring
+ (PPT Master preferred)
+          │
+          ├──── hands-on-deck surgical QA/editing
+          ├──── deterministic WCD audit
+          └──── native-capability inspection
+          │
+          ▼
+ render every slide + contact sheet
+          │
+          ▼
+ fresh adversarial visual critic
+          │ findings
+          └──────────────► targeted repair loop
+          │
+          ▼
+ native PowerPoint render / playback
+          │
+          ▼
+ blind pairwise tournament vs elite human references
+```
+
+## Why PPT Master is now the expressive default
+
+PPT Master has become unusually deep for an agent-driven open-source PowerPoint stack: it can produce editable DrawingML from authored SVG, preserve/use PowerPoint masters and layouts, create native data-backed charts/tables, reuse templates, and add real PowerPoint transitions and optional object animations. It also has AI image generation and licensed/search-image acquisition paths. We keep it external and pinned rather than forking it.
+
+**World Class Decks does not replace PPT Master.** It supplies the creative brief, taste constraints, anti-slop rules, independent review, benchmark harness and release criteria around it.
+
+## Repository map
+
+- `skills/world-class-deck/SKILL.md` — portable top-level Agent Skill.
+- `skills/world-class-deck/references/creative-direction.md` — multi-concept art direction.
+- `skills/world-class-deck/references/typography-and-theme.md` — font/theme system.
+- `skills/world-class-deck/references/motion-direction.md` — native motion grammar.
+- `skills/world-class-deck/references/human-benchmark.md` — blind comparative release bar.
+- `src/world_class_decks/qa/` — PPTX geometry/copy/native-capability inspection.
+- `src/world_class_decks/evals/` — absolute rubric + pairwise human benchmark scoring.
+- `src/world_class_decks/adapters/` — PPT Master, hands-on-deck and PowerPoint bridges.
+- `evals/briefs/` — heterogeneous build briefs + holdout.
+- `evals/golden-references/` — reference-corpus contract (no copyrighted decks are bundled).
+- `tests/` — unit tests for QA, workspace, eval and motion-script generation.
 
 ## Quick start
 
@@ -29,54 +89,60 @@ LLMs are good at producing slide-shaped text. They are much less reliable at pro
 python -m venv .venv
 source .venv/bin/activate
 pip install -e '.[dev]'
+
 wcd doctor
-wcd init-workspace ./work/demo
-wcd audit examples/demo/demo.pptx
-wcd render examples/demo/demo.pptx --out-dir ./work/demo/renders
-wcd contact-sheet ./work/demo/renders --output ./work/demo/contact-sheet.png
+wcd init-workspace work/demo
+wcd audit deck.pptx
+wcd capabilities deck.pptx
+wcd render deck.pptx work/demo/renders
+wcd contact-sheet work/demo/renders work/demo/contact-sheet.png
 pytest
 ```
 
-`wcd doctor` reports optional tools such as LibreOffice, Poppler, Node, and PowerPoint export support.
+## The deck workspace
 
-## Core rule
+`wcd init-workspace` creates persistent artifacts so the agent cannot hand-wave the design process:
 
-**The builder never gets to be the final judge.** The rendered slides are reviewed by a fresh visual-review agent using `skills/world-class-deck/references/visual-qa-rubric.md`. Deterministic failures are fixed before visual review begins.
-
-## Recommended engines
-
-The workflow owns the process; external engines are replaceable:
-
-- **Visual/native editable decks:** `EveryInc/hands-on-deck`.
-- **Chart/data-heavy decks:** PptxGenJS, optionally with `proyecto26/slides-ai-plugin`.
-- **Copy review:** compatible anti-slop skill, or the built-in rules in this repo.
-- **Custom visual assets:** the host agent's image-generation capability.
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md).
+```text
+brief.md
+design_brief.json
+content_plan.json
+evidence_plan.json
+asset_plan.json
+outline.json
+concept_candidates.json
+creative_strategy.json
+theme_system.json
+visual_direction.json
+motion_plan.json
+benchmark_plan.json
+review.json
+assets/
+concepts/
+references/
+renders/
+motion/
+```
 
 ## Quality gates
 
-A release candidate deck should have:
+A flagship release should satisfy all of these:
 
-1. zero critical deterministic QA findings;
-2. zero unresolved overlap/off-slide/tiny-text findings;
-3. no placeholder text;
-4. visual review with no severity-`blocker` findings;
-5. story and visual rubric scores above the configured threshold;
-6. at least one render → review → repair → re-render cycle;
-7. a final render from PowerPoint itself when available.
+1. zero critical deterministic layout/content failures;
+2. independent rendered-pixel review with no blockers/majors;
+3. specific copy and evidence-grounded claims;
+4. deliberate deck-specific typography/theme/image system;
+5. at least one render → critique → repair → re-render loop;
+6. native PowerPoint final render when PowerPoint fidelity matters;
+7. native playback inspection when animations matter;
+8. for any superiority claim, blind pairwise comparison against curated human references.
 
-## Design philosophy
+## “Can it beat the best human PowerPoint designer?”
 
-- One slide, one claim.
-- Action titles beat topic labels.
-- Evidence beats adjectives.
-- Fewer words beat smaller fonts.
-- Subject-derived visual language beats generic gradients/cards.
-- Native shapes remain editable whenever practical.
-- Generated imagery supports the story; it does not contain critical text or numeric evidence.
-- “Looks good in source code” is irrelevant. Rendered pixels are the product.
+That is the aspiration, **not a current factual claim**. The repo now contains the machinery needed to test that claim rather than pretending a 90/100 LLM score proves it.
+
+The release benchmark target is deliberately difficult: across diverse briefs and elite human references, the generated candidate should earn >=70% pairwise points, and the lower 95% confidence bound should eventually exceed 50% before we treat “human-beating” as demonstrated.
 
 ## License
 
-MIT. Upstream projects retain their own licenses and are not vendored here.
+MIT. External engines remain separate projects with their own licenses and release cadences.

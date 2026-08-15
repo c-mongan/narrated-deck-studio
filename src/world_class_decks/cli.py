@@ -8,7 +8,9 @@ from rich.console import Console
 from rich.table import Table
 
 from world_class_decks.doctor import environment_report
+from world_class_decks.evals.pairwise import score_pairwise_file
 from world_class_decks.evals.runner import score_file
+from world_class_decks.qa.capabilities import inspect_capabilities
 from world_class_decks.qa.pptx import audit_pptx
 from world_class_decks.render import make_contact_sheet, render_pptx
 from world_class_decks.workspace import init_workspace
@@ -68,6 +70,18 @@ def contact_sheet(render_dir: Path, output: Path, columns: int = 3) -> None:
     images = sorted(render_dir.glob("slide-*.png"))
     make_contact_sheet(images, output, columns=columns)
     console.print(f"Wrote {output}")
+
+
+@app.command("capabilities")
+def capabilities(pptx: Path) -> None:
+    """Inspect theme, typography, native objects and motion present in a PPTX."""
+    console.print_json(json.dumps(inspect_capabilities(pptx)))
+
+
+@app.command("score-pairwise")
+def score_pairwise(path: Path) -> None:
+    """Score blind candidate-vs-human deck comparisons."""
+    console.print_json(json.dumps(score_pairwise_file(path)))
 
 
 @app.command("score-eval")
