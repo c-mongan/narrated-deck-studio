@@ -16,6 +16,13 @@ crossfade the approved master.
 - `video-narration-sync`: forced alignment, chapter timing, visual assembly,
   captions, and continuity QA.
 - `narrated-product-demo`: an end-to-end orchestration skill joining both.
+- `forensic-slide-alignment`: measured Voicebox narration-to-slide matching with
+  provenance, confidence scores and mandatory human review.
+- consent-gated voice-message and authorised YouTube ingestion with `yt-dlp`.
+- WhisperX word timing, Demucs separation, pyannote speaker diarisation and
+  PySceneDetect transition analysis in an isolated Python environment.
+- narration-to-slide matching with confidence scores and mandatory review flags.
+- PowerPoint rendering through LibreOffice and Poppler.
 - reusable consent, job, and chapter-manifest templates.
 - deterministic validation and FFmpeg/ffprobe continuity checks.
 - forensic artifact and pacing analysis for narration masters.
@@ -23,10 +30,15 @@ crossfade the approved master.
 ## Requirements
 
 - Node.js 20 or newer
-- FFmpeg and ffprobe
-- `jq` and `curl` for the optional Voicebox helper
-- a local Voicebox server for voice generation
-- WhisperX or Montreal Forced Aligner for final word-level alignment
+- Voicebox running locally for authorised voice generation
+- the media toolchain described in [`DEPENDENCIES.md`](DEPENDENCIES.md)
+
+Run the reproducible macOS installer and dependency report:
+
+```bash
+npm run install:media:macos
+npm run doctor
+```
 
 ## Quick start
 

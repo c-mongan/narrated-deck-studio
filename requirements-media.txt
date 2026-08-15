@@ -1,0 +1,11 @@
+# Isolated Python media stack. Install with:
+# uv venv --python 3.11 .venv
+# uv pip install --python .venv/bin/python -r requirements-media.txt
+whisperx==3.8.6
+demucs==4.1.0
+pyannote.audio==4.0.7
+scenedetect==0.7.1
+opencv-python==5.0.0.93
+# Compatibility pins for transformers 4.57.x used by WhisperX/pyannote.
+tokenizers==0.22.2
+huggingface-hub==0.36.2

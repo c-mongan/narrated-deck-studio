@@ -18,7 +18,9 @@ consent or immutable-audio rules.
 
 ## Phase 2: create the narration
 
-Follow `../voice-clone-studio/SKILL.md`.
+Follow `../voice-clone-studio/SKILL.md`. When the source is a voice message or an
+authorised YouTube video, also follow `../forensic-slide-alignment/SKILL.md` for
+consent-gated ingestion, speaker isolation, measured word timing and provenance.
 
 Stop unless speaker permission is recorded privately. Generate audition clips,
 then at least two full continuous takes. Approve one natural take and checksum it.
