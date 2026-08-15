@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  TOOLCHAIN, assessToolchain, probeExecutable, verifyToolPath, toolPathCandidates,
+  TOOLCHAIN, assessToolchain, canonicalVoiceboxUrl, probeExecutable, verifyToolPath,
+  toolPathCandidates,
 } from '../scripts/toolchain.mjs';
 
 test('toolchain declares required, recommended, and optional production tools', () => {
@@ -44,6 +45,23 @@ test('tool-path verification rejects an existing broken executable', () => {
 test('executable probe rejects a binary that exits unsuccessfully', () => {
   assert.equal(probeExecutable(process.execPath, ['-e', 'process.exit(0)']), true);
   assert.equal(probeExecutable(process.execPath, ['-e', 'process.exit(42)']), false);
+});
+
+test('Voicebox doctor accepts only sanitized loopback HTTP origins', () => {
+  assert.equal(canonicalVoiceboxUrl('http://127.0.0.1:17493'), 'http://127.0.0.1:17493');
+  assert.equal(canonicalVoiceboxUrl('http://localhost:17493/'), 'http://localhost:17493');
+  assert.equal(canonicalVoiceboxUrl('http://[::1]:17493'), 'http://[::1]:17493');
+  for (const unsafe of [
+    'http://192.168.1.20:17493',
+    'https://127.0.0.1:17493',
+    'http://user:secret@127.0.0.1:17493',
+    'http://127.0.0.1:17493/health',
+    'http://127.0.0.1:17493?token=secret',
+    'http://127.0.0.1:17493#secret',
+    'not-a-url',
+  ]) {
+    assert.throws(() => canonicalVoiceboxUrl(unsafe), /Voicebox URL/i, unsafe);
+  }
 });
 
 test('assessment reports ready and missing tools by tier', () => {

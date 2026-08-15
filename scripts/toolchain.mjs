@@ -67,9 +67,36 @@ function locateOnPath(command) {
   return result.stdout.split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? null;
 }
 
+export function canonicalVoiceboxUrl(input) {
+  let url;
+  try {
+    url = new URL(input);
+  } catch {
+    throw new Error('Voicebox URL must be a valid loopback HTTP origin');
+  }
+  const loopbackHosts = new Set(['127.0.0.1', 'localhost', '[::1]']);
+  if (
+    url.protocol !== 'http:'
+    || !loopbackHosts.has(url.hostname.toLowerCase())
+    || url.username
+    || url.password
+    || url.pathname !== '/'
+    || url.search
+    || url.hash
+  ) {
+    throw new Error('Voicebox URL must be a credential-free loopback HTTP origin');
+  }
+  return url.origin;
+}
+
 function resolveInstalledTool(tool) {
   if (tool.name === 'voicebox') {
-    const url = process.env.VOICEBOX_URL ?? 'http://127.0.0.1:17493';
+    let url;
+    try {
+      url = canonicalVoiceboxUrl(process.env.VOICEBOX_URL ?? 'http://127.0.0.1:17493');
+    } catch {
+      return null;
+    }
     const result = spawnSync('curl', ['-fsS', '--max-time', '3', `${url}/health`], { encoding: 'utf8' });
     if (result.status !== 0) return null;
     try {

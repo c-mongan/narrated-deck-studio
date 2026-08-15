@@ -20,6 +20,9 @@ test('Windows installer uses winget plus the same pinned dependency graph', () =
   assert.match(windowsInstaller, /requirements-media\.lock/);
   assert.match(windowsInstaller, /songsee\/cmd\/songsee@v0\.1\.1/);
   assert.match(windowsInstaller, /montreal-forced-aligner=3\.4\.1/);
+  assert.match(windowsInstaller, /'MediaArea\.MediaInfo'/);
+  assert.doesNotMatch(windowsInstaller, /MediaArea\.MediaInfo\.GUI/);
+  assert.match(windowsInstaller, /recommendedPackages\) \{ Install-WingetPackage -Id \$package -Optional \}/);
   assert.doesNotMatch(windowsInstaller, /Invoke-Expression|@latest/i);
 });
 

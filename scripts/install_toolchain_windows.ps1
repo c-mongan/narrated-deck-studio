@@ -35,7 +35,7 @@ $requiredPackages = @(
 )
 $recommendedPackages = @(
     'ChrisBagwell.SoX',
-    'MediaArea.MediaInfo.GUI',
+    'MediaArea.MediaInfo',
     'OliverBetz.ExifTool',
     'UB-Mannheim.TesseractOCR',
     'ImageMagick.ImageMagick',
@@ -44,7 +44,7 @@ $recommendedPackages = @(
 )
 
 foreach ($package in $requiredPackages) { Install-WingetPackage -Id $package }
-foreach ($package in $recommendedPackages) { Install-WingetPackage -Id $package }
+foreach ($package in $recommendedPackages) { Install-WingetPackage -Id $package -Optional }
 
 $pathAdditions = @(
     "$env:LOCALAPPDATA\Microsoft\WinGet\Links",
