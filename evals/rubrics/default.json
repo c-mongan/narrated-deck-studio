@@ -1,0 +1,19 @@
+{
+  "pass_threshold": 85,
+  "weights": {
+    "story": 0.22,
+    "visual_quality": 0.24,
+    "specificity": 0.12,
+    "evidence": 0.16,
+    "editability": 0.08,
+    "copy_quality": 0.10,
+    "consistency": 0.08
+  },
+  "hard_gates": [
+    "opens",
+    "no_critical_overlap",
+    "no_offslide_content",
+    "no_placeholders",
+    "required_content_present"
+  ]
+}
