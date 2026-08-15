@@ -5,6 +5,9 @@
 node_modules/
 .venv/
 dist/
+mcpb/server/
+*.mcpb
+.remotion/
 coverage/
 
 # Real or generated media never belongs in this repository.

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "externalEngines": {
+    "pptMaster": {
+      "repository": "https://github.com/hugohe3/ppt-master.git",
+      "tag": "v2.8.0",
+      "commit": "0c0bdaf0dd953afc2c00322e92f26dc02fc1c51f",
+      "integration": "external-agent-skill",
+      "license": "MIT"
+    },
+    "voicebox": {
+      "expectedVersion": "0.5.0",
+      "integration": "loopback-http",
+      "profileIdsPersisted": false
+    },
+    "whisperx": {
+      "integration": "isolated-python-environment",
+      "lockFile": "requirements-media.lock"
+    },
+    "remotion": {
+      "version": "4.0.512",
+      "integration": "adapter",
+      "commercialLicenseReviewRequired": true
+    }
+  }
+}

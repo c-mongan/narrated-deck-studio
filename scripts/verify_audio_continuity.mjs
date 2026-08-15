@@ -33,10 +33,12 @@ const packetJson = JSON.parse(ffprobe([
 
 let largestGap = 0;
 let previousEnd = null;
+let firstPacketStart = null;
 for (const packet of packetJson.packets ?? []) {
   const start = Number(packet.pts_time);
   const packetDuration = Number(packet.duration_time);
   if (!Number.isFinite(start) || !Number.isFinite(packetDuration)) continue;
+  if (firstPacketStart === null) firstPacketStart = start;
   if (previousEnd !== null) largestGap = Math.max(largestGap, start - previousEnd);
   previousEnd = start + packetDuration;
 }
@@ -44,6 +46,7 @@ for (const packet of packetJson.packets ?? []) {
 const packets = packetJson.packets?.length ?? 0;
 const nominalFrame = packets > 0 ? finalDuration / packets : 0;
 const allowedGap = Math.max(0.05, nominalFrame * 2);
-const passed = durationDifference <= 0.05 && largestGap <= allowedGap;
-console.log(JSON.stringify({ passed, masterDuration, finalDuration, durationDifference, packets, largestGap, allowedGap }, null, 2));
+const startsWithinTolerance = firstPacketStart !== null && Math.abs(firstPacketStart) <= 0.05;
+const passed = startsWithinTolerance && durationDifference <= 0.05 && largestGap <= allowedGap;
+console.log(JSON.stringify({ passed, masterDuration, finalDuration, durationDifference, packets, firstPacketStart, startsWithinTolerance, largestGap, allowedGap }, null, 2));
 if (!passed) process.exit(1);

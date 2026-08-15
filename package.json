@@ -1,12 +1,24 @@
 {
-  "name": "narrated-demo-toolkit",
-  "version": "0.1.0",
+  "name": "narrated-deck-studio",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "nds": "dist/src/cli.js"
+  },
   "scripts": {
-    "test": "node --test",
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test tests/*.test.mjs && tsx --test tests-studio/*.test.ts && node scripts/test_world_class_decks.mjs",
+    "test:legacy": "node --test tests/*.test.mjs",
+    "test:studio": "tsx --test tests-studio/*.test.ts",
+    "test:decks": "node scripts/test_world_class_decks.mjs",
+    "lint": "tsc -p tsconfig.json --noEmit",
     "validate": "node scripts/validate_job.mjs templates/job-manifest.example.json && node scripts/validate_chapters.mjs templates/chapter-manifest.example.json",
     "doctor": "node scripts/toolchain.mjs",
+    "studio": "tsx src/cli.ts",
+    "mcp": "tsx src/mcp-server.ts",
+    "smoke:mcp": "node scripts/smoke_mcp.mjs",
+    "mcp:build": "npm run build && node scripts/prepare_mcpb.mjs && mcpb validate mcpb/manifest.json && mcpb pack mcpb dist/narrated-deck-studio.mcpb",
     "ingest": "node scripts/ingest_media.mjs",
     "match-slides": "node scripts/match_slides.mjs",
     "voicebox:start": "node scripts/start_voicebox_server.mjs",
@@ -15,5 +27,31 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "overrides": {
+    "tmp": "0.2.7"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@remotion/bundler": "^4.0.512",
+    "@remotion/player": "^4.0.512",
+    "@remotion/renderer": "^4.0.512",
+    "adm-zip": "^0.6.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "commander": "^15.0.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "remotion": "^4.0.512",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^22.17.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2"
   }
 }

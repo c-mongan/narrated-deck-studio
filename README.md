@@ -1,89 +1,39 @@
-# Narrated Demo Toolkit
+# Narrated Deck Studio
 
-A consent-first, local-first toolkit for producing slow, understandable product
-walkthroughs with cloned narration, accurate screen alignment, readable labels,
-captions, and objective media QA.
+A Cowork-first, consent-gated local studio for turning a mixed source folder into reviewed, editable PowerPoints, self-playing PowerPoint Shows, captioned videos, and provenance receipts.
 
-The core editing rule is simple: approve one narration master, then treat that
-audio as immutable. Screens, slides, labels, tooltips, pauses, and speed ramps
-move around the narration. The final editor must not trim, rearrange, splice, or
-crossfade the approved master.
+Dad is the first user. The normal experience is conversational: select a folder in Claude Cowork, answer a few plain-English questions, approve four review pages, and receive deliverables. No terminal, JSON editing, voice profile IDs, or arbitrary command access is part of that path.
 
-## What is included
+## What is implemented
 
-- `voice-clone-studio`: permission, reference-audio, generation, selection, and
-  provenance guidance.
-- `video-narration-sync`: forced alignment, chapter timing, visual assembly,
-  captions, and continuity QA.
-- `narrated-product-demo`: an end-to-end orchestration skill joining both.
-- `forensic-slide-alignment`: measured Voicebox narration-to-slide matching with
-  provenance, confidence scores and mandatory human review.
-- consent-gated voice-message and authorised YouTube ingestion with `yt-dlp`.
-- WhisperX word timing, Demucs separation, pyannote speaker diarisation and
-  PySceneDetect transition analysis in an isolated Python environment.
-- narration-to-slide matching with confidence scores and mandatory review flags.
-- PowerPoint rendering through LibreOffice and Poppler.
-- reusable consent, job, and chapter-manifest templates.
-- deterministic validation and FFmpeg/ffprobe continuity checks.
-- forensic artifact and pacing analysis for narration masters.
+- Safe recursive inventory of PPTX, DOCX, PDF, text, media and images, including checksums, notes detection, macro warnings, prompt-injection warnings, symlink confinement and generated-folder exclusions.
+- Human-readable series planning with duration, word and slide budgets plus three creative territories.
+- Exact-artifact approval receipts and automatic downstream invalidation.
+- Loopback-only, token-protected review UI with plan, deck, blind-voice and release gates. Agents cannot approve.
+- Eight narrow MCP tools and a portable Agent Skill for Cowork, Codex and Hermes.
+- Imported World Class Decks creative QA/render pipeline and a pinned external PPT Master authoring contract.
+- Consent-gated local Voicebox take generation, immutable-master handling, alignment request/validation, captions, Remotion composition and Windows native PowerPoint narration application.
+- Fail-closed release checks and checksum manifest export.
 
-## Requirements
-
-- Node.js 20 or newer
-- Voicebox running locally for authorised voice generation
-- the media toolchain described in [`DEPENDENCIES.md`](DEPENDENCIES.md)
-
-Install the toolchain and run the executable dependency report:
-
-**macOS**
+## Developer verification
 
 ```bash
-npm run install:media:macos
-npm run doctor
-```
-
-**Windows PowerShell / Claude Cowork**
-
-```powershell
-npm run install:media:windows
-npm run doctor
-```
-
-The Node workflows, privacy gates, slide matcher and Voicebox launcher are
-cross-platform. Windows private outputs are protected with `icacls`; macOS and
-Linux use restrictive file modes. CI runs the repository tests on Windows,
-macOS and Ubuntu. Voicebox itself must be installed separately; set
-`VOICEBOX_SERVER` if its Windows executable is outside the standard locations.
-
-## Quick start
-
-```bash
+npm ci
+python3 -m pip install -e './packages/world-class-decks[dev]'
+npm run build
 npm test
-cp templates/job-manifest.example.json /outside/repo/jobs/demo.private.json
-node scripts/validate_job.mjs /outside/repo/jobs/demo.private.json
-node scripts/analyze_voice_naturalness.mjs /outside/repo/master.wav /outside/repo/script.txt
+npm run validate
+npm run mcp:build
 ```
 
-Read `skills/narrated-product-demo/SKILL.md` for the complete workflow. Copy a
-skill directory into a compatible agent's skills folder if you want it to be
-automatically discoverable.
+The packaged extension is written to `dist/narrated-deck-studio.mcpb`. MCPB signing is intentionally a release gate; see [docs/PACKAGING.md](docs/PACKAGING.md).
 
-## Privacy boundary
+## Boundaries
 
-Do not commit speaker recordings, generated voices, Voicebox profile IDs,
-permission evidence, unreleased product footage, customer data, model weights,
-or real job manifests. A private GitHub repository reduces exposure; it is not
-a suitable voice-evidence vault. See `PRIVACY.md`.
+The repository orchestrates work; it does not silently invent approval, consent, native playback evidence, or PowerPoint fidelity. PPT Master is installed separately and remains external. Voicebox, WhisperX, PowerPoint, FFmpeg and platform media tools are also separately installed/pinned. macOS/Windows PowerPoint acceptance and Dad's zero-terminal Cowork trial remain machine-backed release gates.
+
+Start with [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [skills/narrated-deck-studio/SKILL.md](skills/narrated-deck-studio/SKILL.md), and [PRIVACY.md](PRIVACY.md).
 
 ## Responsible use
 
-Only clone a voice with the speaker's explicit permission. Disclose synthetic
-narration in the finished video or its accompanying materials. Do not use this
-toolkit for deception, impersonation, authentication bypass, fraud, or political
-persuasion.
-
-## Project status
-
-This is a practical production toolkit, not a full video editor. The supplied
-checks verify manifests and audio-stream continuity. A human still approves the
-voice, pronunciation, visual meaning, readability, and final disclosure.
+Only synthesize a voice with the speaker's explicit permission and separately confirm download rights for online source material. Always disclose synthetic narration. Never use this project for deception, fraud, impersonation, authentication bypass, or political persuasion.

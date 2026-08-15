@@ -1,0 +1,37 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/mcpb/main/schemas/mcpb-manifest-v0.4.schema.json",
+  "manifest_version": "0.4",
+  "name": "narrated-deck-studio",
+  "display_name": "Narrated Deck Studio",
+  "version": "0.2.0",
+  "description": "Consent-first local production of vetted narrated PowerPoints and videos from a folder of source material.",
+  "long_description": "Lets Claude Cowork safely inventory an approved folder, clarify and review a series plan, orchestrate editable PowerPoint authoring, clone an authorised voice locally, align narration, and release reviewed PPTX, PPSX and MP4 deliverables. Human approval is required at four gates.",
+  "author": { "name": "Narrated Deck Studio contributors" },
+  "repository": { "type": "git", "url": "https://github.com/c-mongan/narrated-demo-toolkit" },
+  "license": "MIT",
+  "keywords": ["powerpoint", "narration", "voice", "cowork", "local-first", "accessibility"],
+  "server": {
+    "type": "node",
+    "entry_point": "server/src/mcp-server.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/src/mcp-server.js"],
+      "env": { "NDS_MCPB_ROOT": "${__dirname}" }
+    }
+  },
+  "tools": [
+    { "name": "inspect_folder", "description": "Inventory the selected folder safely." },
+    { "name": "draft_series_plan", "description": "Create an unapproved plan from the user's answers." },
+    { "name": "get_project_status", "description": "Return redacted project status." },
+    { "name": "open_review", "description": "Open the local human approval page." },
+    { "name": "run_approved_stage", "description": "Run a gated production stage." },
+    { "name": "request_revision", "description": "Record an edit and invalidate downstream approvals." },
+    { "name": "run_release_checks", "description": "Run release QA." },
+    { "name": "export_deliverables", "description": "Export only after final approval." }
+  ],
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": ["darwin", "win32"],
+    "runtimes": { "node": ">=20" }
+  }
+}

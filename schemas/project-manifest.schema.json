@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://narrated-deck.studio/schemas/project-manifest.schema.json",
+  "title": "Narrated Deck Studio project manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "projectId", "createdAt", "updatedAt", "sourceRoot", "workspaceRoot", "audience", "desiredAction", "outputCount", "brandConstraints", "style", "voice", "deliveryFormats", "state", "approvals", "seriesItems"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "projectId": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "sourceRoot": { "type": "string", "minLength": 1 },
+    "workspaceRoot": { "type": "string", "minLength": 1 },
+    "audience": { "type": "string" },
+    "desiredAction": { "type": "string" },
+    "outputCount": { "type": "integer", "minimum": 1, "maximum": 24 },
+    "totalDurationSeconds": { "type": "number", "minimum": 30 },
+    "perOutputDurationSeconds": { "type": "array", "items": { "type": "number", "minimum": 30 } },
+    "brandConstraints": { "type": "array", "items": { "type": "string" } },
+    "style": { "type": "string" },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceType", "permissionConfirmed", "sourceAuthorized"],
+      "properties": {
+        "sourceType": { "enum": ["local-audio", "authorized-youtube", "preset"] },
+        "sourceReference": { "type": "string" },
+        "speakerAlias": { "type": "string" },
+        "permissionConfirmed": { "type": "boolean" },
+        "sourceAuthorized": { "type": "boolean" },
+        "consentEvidenceLocation": { "type": "string" }
+      }
+    },
+    "deliveryFormats": { "type": "array", "uniqueItems": true, "items": { "enum": ["pptx", "ppsx", "mp4", "vtt", "srt"] } },
+    "state": { "enum": ["discovered", "planned", "plan_approved", "deck_ready", "deck_approved", "voice_ready", "voice_approved", "assembled", "release_approved", "delivered"] },
+    "approvals": { "type": "object" },
+    "seriesItems": { "type": "array" }
+  }
+}
