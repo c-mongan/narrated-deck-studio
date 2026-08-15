@@ -1,0 +1,12 @@
+{
+  "file": "examples/demo/demo.pptx",
+  "slide_count": 3,
+  "passed": true,
+  "summary": {
+    "blockers": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0
+  },
+  "findings": []
+}

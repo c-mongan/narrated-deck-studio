@@ -1,0 +1,26 @@
+{
+  "deck": "example.pptx",
+  "brief": "01-executive-operating-review.md",
+  "pass_threshold": 90,
+  "hard_gates": {
+    "opens": true,
+    "no_critical_overlap": true,
+    "no_offslide_content": true,
+    "no_placeholders": true,
+    "required_content_present": true
+  },
+  "scores": {
+    "story": 94,
+    "visual_quality": 95,
+    "art_direction": 96,
+    "typography": 95,
+    "composition": 94,
+    "imagery": 93,
+    "specificity": 96,
+    "evidence": 94,
+    "copy_quality": 96,
+    "editability": 92,
+    "consistency": 95,
+    "motion": null
+  }
+}
