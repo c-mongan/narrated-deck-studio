@@ -31,7 +31,8 @@ speaker has explicitly authorised the intended synthetic use.
 1. **Gate consent.** Record scope, verifier and disclosure in the private job
    manifest. Completion: the intended voice, audience and use are all covered.
 2. **Ingest privately.** Run `npm run ingest -- SOURCE --output PRIVATE_DIR
-   --voice-reference --speaker-consent`. Completion: WAV, source metadata and
+   --voice-reference --speaker-consent` and add `--source-authorized` for an
+   authorised YouTube source. Completion: WAV, source metadata and
    ingest manifest exist outside git.
 3. **Clean the reference.** Use Demucs for music/effects and pyannote.audio for
    multi-speaker material. Completion: one authorised speaker, no overlapping

@@ -8,32 +8,61 @@ import { fileURLToPath } from 'node:url';
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 export const TOOLCHAIN = Object.freeze([
-  { name: 'yt-dlp', tier: 'required', purpose: 'authorised YouTube ingestion' },
-  { name: 'ffmpeg', tier: 'required', purpose: 'media conversion and assembly' },
-  { name: 'ffprobe', tier: 'required', purpose: 'stream and timing verification' },
-  { name: 'node', tier: 'required', purpose: 'toolkit and deck scripts' },
-  { name: 'python3', tier: 'required', purpose: 'alignment and ML tools' },
-  { name: 'jq', tier: 'required', purpose: 'manifest and API processing' },
+  { name: 'yt-dlp', tier: 'required', purpose: 'authorised YouTube ingestion', probeArgs: ['--version'] },
+  { name: 'ffmpeg', tier: 'required', purpose: 'media conversion and assembly', probeArgs: ['-version'] },
+  { name: 'ffprobe', tier: 'required', purpose: 'stream and timing verification', probeArgs: ['-version'] },
+  { name: 'node', tier: 'required', purpose: 'toolkit and deck scripts', probeArgs: ['--version'] },
+  { name: 'python3', tier: 'required', purpose: 'alignment and ML tools', probeArgs: ['--version'] },
+  { name: 'jq', tier: 'required', purpose: 'manifest and API processing', probeArgs: ['--version'] },
   { name: 'voicebox', tier: 'required', purpose: 'authorised local voice cloning service' },
-  { name: 'soffice', tier: 'required', purpose: 'PowerPoint rendering' },
-  { name: 'pdftoppm', tier: 'required', purpose: 'slide-image rendering' },
-  { name: 'whisperx', tier: 'recommended', purpose: 'word-level forced alignment' },
-  { name: 'demucs', tier: 'recommended', purpose: 'speech and music separation' },
+  { name: 'soffice', tier: 'required', purpose: 'PowerPoint rendering', probeArgs: ['--version'] },
+  { name: 'pdftoppm', tier: 'required', purpose: 'slide-image rendering', probeArgs: ['-v'] },
+  { name: 'whisperx', tier: 'recommended', purpose: 'word-level forced alignment', probeArgs: ['--help'] },
+  { name: 'demucs', tier: 'recommended', purpose: 'speech and music separation', probeArgs: ['--help'] },
   { name: 'pyannote', tier: 'recommended', purpose: 'speaker diarisation', command: 'pyannote-check' },
-  { name: 'scenedetect', tier: 'recommended', purpose: 'slide and scene boundaries' },
-  { name: 'sox', tier: 'recommended', purpose: 'audio measurement' },
-  { name: 'mediainfo', tier: 'recommended', purpose: 'independent media inspection' },
-  { name: 'exiftool', tier: 'recommended', purpose: 'source metadata and provenance' },
-  { name: 'tesseract', tier: 'recommended', purpose: 'frame and slide OCR' },
-  { name: 'songsee', tier: 'recommended', purpose: 'audio feature visualisation' },
+  { name: 'scenedetect', tier: 'recommended', purpose: 'slide and scene boundaries', probeArgs: ['version'] },
+  { name: 'sox', tier: 'recommended', purpose: 'audio measurement', probeArgs: ['--version'] },
+  { name: 'mediainfo', tier: 'recommended', purpose: 'independent media inspection', probeArgs: ['--Version'] },
+  { name: 'exiftool', tier: 'recommended', purpose: 'source metadata and provenance', probeArgs: ['-ver'] },
+  { name: 'tesseract', tier: 'recommended', purpose: 'frame and slide OCR', probeArgs: ['--version'] },
+  { name: 'songsee', tier: 'recommended', purpose: 'audio feature visualisation', probeArgs: ['--help'] },
   { name: 'mfa', tier: 'optional', purpose: 'phoneme-level forced alignment' },
-  { name: 'magick', tier: 'optional', purpose: 'contact sheets and image transforms' },
-  { name: 'mkvmerge', tier: 'optional', purpose: 'container inspection and repair' },
+  { name: 'magick', tier: 'optional', purpose: 'contact sheets and image transforms', probeArgs: ['-version'] },
+  { name: 'mkvmerge', tier: 'optional', purpose: 'container inspection and repair', probeArgs: ['--version'] },
 ]);
 
-export function probeExecutable(path, args = ['--version']) {
-  const result = spawnSync(path, args, { stdio: 'ignore' });
+export function probeExecutable(path, args = ['--version'], env = process.env) {
+  const result = spawnSync(path, args, { stdio: 'ignore', env });
   return result.status === 0;
+}
+
+export function verifyToolPath(tool, path) {
+  if (!path || !existsSync(path)) return null;
+  const cleanEnv = { ...process.env };
+  delete cleanEnv.PYTHONPATH;
+  return probeExecutable(path, tool.probeArgs ?? ['--version'], cleanEnv) ? path : null;
+}
+
+export function toolPathCandidates(tool, platform = process.platform) {
+  const command = tool.command ?? tool.name;
+  if (platform === 'win32') {
+    return [
+      join(PROJECT_ROOT, '.venv', 'Scripts', `${command}.exe`),
+      join(process.env.HOME ?? process.env.USERPROFILE ?? '', '.local', 'bin', `${command}.exe`),
+    ];
+  }
+  return [
+    join(PROJECT_ROOT, '.venv', 'bin', command),
+    join(process.env.HOME ?? '', '.local', 'bin', command),
+  ];
+}
+
+function locateOnPath(command) {
+  const result = process.platform === 'win32'
+    ? spawnSync('where.exe', [command], { encoding: 'utf8' })
+    : spawnSync('sh', ['-lc', `command -v "${command}"`], { encoding: 'utf8' });
+  if (result.status !== 0) return null;
+  return result.stdout.split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? null;
 }
 
 function resolveInstalledTool(tool) {
@@ -48,7 +77,9 @@ function resolveInstalledTool(tool) {
     }
   }
   if (tool.name === 'pyannote') {
-    const python = join(PROJECT_ROOT, '.venv', 'bin', 'python');
+    const python = process.platform === 'win32'
+      ? join(PROJECT_ROOT, '.venv', 'Scripts', 'python.exe')
+      : join(PROJECT_ROOT, '.venv', 'bin', 'python');
     if (!existsSync(python)) return null;
     const cleanEnv = { ...process.env };
     delete cleanEnv.PYTHONPATH;
@@ -56,7 +87,11 @@ function resolveInstalledTool(tool) {
     return result.status === 0 ? `${python} (pyannote.audio)` : null;
   }
   if (tool.name === 'mfa') {
-    const mfa = join(process.env.HOME ?? '', '.local', 'share', 'narrated-demo-toolkit', 'mfa', 'bin', 'mfa');
+    const home = process.env.HOME ?? process.env.USERPROFILE ?? '';
+    const mfaRoot = join(home, '.local', 'share', 'narrated-demo-toolkit', 'mfa');
+    const mfa = process.platform === 'win32'
+      ? join(mfaRoot, 'Scripts', 'mfa.exe')
+      : join(mfaRoot, 'bin', 'mfa');
     if (existsSync(mfa)) {
       const cleanEnv = { ...process.env };
       delete cleanEnv.PYTHONPATH;
@@ -65,15 +100,11 @@ function resolveInstalledTool(tool) {
     }
   }
   const command = tool.command ?? tool.name;
-  const local = join(PROJECT_ROOT, '.venv', 'bin', command);
-  if (existsSync(local)) return local;
-  const userLocal = join(process.env.HOME ?? '', '.local', 'bin', command);
-  if (existsSync(userLocal)) return userLocal;
-  const result = spawnSync('sh', ['-lc', `command -v "${command}"`], { encoding: 'utf8' });
-  if (result.status !== 0) return null;
-  const path = result.stdout.trim();
-  if (['ffmpeg', 'ffprobe'].includes(tool.name) && !probeExecutable(path, ['-version'])) return null;
-  return path;
+  for (const candidate of toolPathCandidates(tool)) {
+    const verified = verifyToolPath(tool, candidate);
+    if (verified) return verified;
+  }
+  return verifyToolPath(tool, locateOnPath(command));
 }
 
 export function assessToolchain(resolveTool = null) {

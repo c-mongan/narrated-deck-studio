@@ -4,12 +4,27 @@ The toolkit keeps heavyweight speech tools isolated from the system Python. Real
 media, voice profiles, consent evidence, model weights and job manifests stay
 outside this repository.
 
-## Install on macOS
+## Install
+
+### macOS
 
 ```bash
 npm run install:media:macos
 npm run doctor
 ```
+
+### Windows PowerShell / Claude Cowork
+
+```powershell
+npm run install:media:windows
+npm run doctor
+```
+
+The Windows installer uses `winget`, a Python 3.11 `.venv`, the same hash-locked
+Python graph, pinned Songsee, and optional pinned MFA when micromamba is already
+available. Reopen PowerShell and rerun if a newly installed command is not yet on
+`PATH`. Voicebox is installed separately; use `VOICEBOX_SERVER` for a custom
+Windows executable location.
 
 The installer provides:
 
@@ -19,16 +34,21 @@ The installer provides:
 | Recommended | WhisperX, Demucs, pyannote.audio, PySceneDetect, SoX, MediaInfo, ExifTool, Tesseract, Songsee, FFmpeg 7 compatibility libraries | alignment, separation, diarisation and evidence |
 | Optional | Montreal Forced Aligner, ImageMagick, MKVToolNix | phoneme timing, contact sheets and unusual containers |
 
-Python packages install into `.venv`. MFA installs into
+Python packages install into `.venv` from the hash-locked
+`requirements-media.lock`. MFA `3.4.1` installs into
 `~/.local/share/narrated-demo-toolkit/mfa` because its Conda dependencies should
-not share the WhisperX environment.
+not share the WhisperX environment. Songsee is pinned to `v0.1.1`. Exact native
+versions used for release verification are recorded in `TOOLCHAIN_VERSIONS.md`;
+Homebrew may resolve newer compatible bottles, which the executable doctor then
+checks.
 
 Voicebox is the approved voice-cloning engine. It remains a separately installed
 local application/service; this repository calls its API through
 `scripts/voicebox_generate.sh`. Do not commit its profiles, IDs, references or
 outputs. Voicebox 0.5.0 defaults to port 8000 and `~/data` when its bundled server
 is launched directly, so use the repository launcher to bind the expected port and
-existing app data:
+existing app data. The launcher refuses non-loopback hosts so this consent-sensitive
+service cannot be exposed to the LAN accidentally:
 
 ```bash
 npm run voicebox:start
@@ -53,7 +73,7 @@ actual signed or recorded permission beside the private job manifest.
 ```bash
 npm run ingest -- 'https://www.youtube.com/watch?v=VIDEO_ID' \
   --output /outside/repo/jobs/demo/source \
-  --voice-reference --speaker-consent
+  --source-authorized --voice-reference --speaker-consent
 ```
 
 `yt-dlp` saves source metadata and available subtitles, then extracts lossless WAV.

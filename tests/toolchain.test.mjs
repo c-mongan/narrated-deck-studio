@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { TOOLCHAIN, assessToolchain, probeExecutable } from '../scripts/toolchain.mjs';
+import {
+  TOOLCHAIN, assessToolchain, probeExecutable, verifyToolPath, toolPathCandidates,
+} from '../scripts/toolchain.mjs';
 
 test('toolchain declares required, recommended, and optional production tools', () => {
   const names = new Set(TOOLCHAIN.map((tool) => tool.name));
@@ -20,9 +22,26 @@ test('toolchain declares required, recommended, and optional production tools', 
   assert.equal(TOOLCHAIN.find((tool) => tool.name === 'mfa').tier, 'optional');
 });
 
+test('tool specs define a harmless executable probe', () => {
+  const special = new Set(['voicebox', 'pyannote', 'mfa']);
+  for (const tool of TOOLCHAIN.filter((item) => !special.has(item.name))) {
+    assert.ok(Array.isArray(tool.probeArgs), `${tool.name} needs probeArgs`);
+  }
+});
+
+test('tool path candidates use Windows virtual-environment layout', () => {
+  const paths = toolPathCandidates({ name: 'whisperx' }, 'win32');
+  assert.match(paths[0], /\.venv[\\/]Scripts[\\/]whisperx\.exe$/i);
+});
+
+test('tool-path verification rejects an existing broken executable', () => {
+  assert.equal(verifyToolPath({ probeArgs: ['-e', 'process.exit(42)'] }, process.execPath), null);
+  assert.equal(verifyToolPath({ probeArgs: ['-e', 'process.exit(0)'] }, process.execPath), process.execPath);
+});
+
 test('executable probe rejects a binary that exits unsuccessfully', () => {
-  assert.equal(probeExecutable('/usr/bin/true', []), true);
-  assert.equal(probeExecutable('/usr/bin/false', []), false);
+  assert.equal(probeExecutable(process.execPath, ['-e', 'process.exit(0)']), true);
+  assert.equal(probeExecutable(process.execPath, ['-e', 'process.exit(42)']), false);
 });
 
 test('assessment reports ready and missing tools by tier', () => {

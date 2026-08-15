@@ -33,12 +33,27 @@ crossfade the approved master.
 - Voicebox running locally for authorised voice generation
 - the media toolchain described in [`DEPENDENCIES.md`](DEPENDENCIES.md)
 
-Run the reproducible macOS installer and dependency report:
+Install the toolchain and run the executable dependency report:
+
+**macOS**
 
 ```bash
 npm run install:media:macos
 npm run doctor
 ```
+
+**Windows PowerShell / Claude Cowork**
+
+```powershell
+npm run install:media:windows
+npm run doctor
+```
+
+The Node workflows, privacy gates, slide matcher and Voicebox launcher are
+cross-platform. Windows private outputs are protected with `icacls`; macOS and
+Linux use restrictive file modes. CI runs the repository tests on Windows,
+macOS and Ubuntu. Voicebox itself must be installed separately; set
+`VOICEBOX_SERVER` if its Windows executable is outside the standard locations.
 
 ## Quick start
 

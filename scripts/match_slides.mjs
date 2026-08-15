@@ -25,10 +25,37 @@ export function matchTranscriptToSlides(slides, segments, options = {}) {
   if (!Array.isArray(slides) || slides.length === 0) {
     throw new Error('At least one slide is required for alignment');
   }
+  for (const [index, slide] of slides.entries()) {
+    if (!Number.isInteger(slide?.slide) || slide.slide < 1) {
+      throw new Error(`Slide ${index + 1} needs a positive integer slide number`);
+    }
+    if (typeof slide.text !== 'string' || !slide.text.trim()) {
+      throw new Error(`Slide text is required for slide ${slide.slide}`);
+    }
+  }
   if (!Array.isArray(segments)) {
     throw new Error('Transcript segments must be an array');
   }
+  let previousEnd = 0;
+  for (const [index, segment] of segments.entries()) {
+    if (!Number.isFinite(segment?.start) || !Number.isFinite(segment?.end)) {
+      throw new Error(`Segment ${index + 1} timestamps must be finite numbers`);
+    }
+    if (segment.start < 0 || segment.end <= segment.start) {
+      throw new Error(`Segment ${index + 1} end must be after start and timestamps must be non-negative`);
+    }
+    if (index > 0 && segment.start < previousEnd) {
+      throw new Error('Transcript segments must be chronological and non-overlapping');
+    }
+    if (typeof segment.text !== 'string' || !segment.text.trim()) {
+      throw new Error(`Segment ${index + 1} text is required`);
+    }
+    previousEnd = segment.end;
+  }
   const minimumScore = options.minimumScore ?? 0.25;
+  if (!Number.isFinite(minimumScore) || minimumScore < 0 || minimumScore > 1) {
+    throw new Error('minimumScore must be a finite number between 0 and 1');
+  }
   let previousIndex = 0;
   const mappings = segments.map((segment) => {
     let bestIndex = previousIndex;

@@ -9,8 +9,9 @@
     "doctor": "node scripts/toolchain.mjs",
     "ingest": "node scripts/ingest_media.mjs",
     "match-slides": "node scripts/match_slides.mjs",
-    "voicebox:start": "bash scripts/start_voicebox_server.sh",
-    "install:media:macos": "bash scripts/install_toolchain_macos.sh"
+    "voicebox:start": "node scripts/start_voicebox_server.mjs",
+    "install:media:macos": "bash scripts/install_toolchain_macos.sh",
+    "install:media:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install_toolchain_windows.ps1"
   },
   "engines": {
     "node": ">=20"

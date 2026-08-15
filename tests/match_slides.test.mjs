@@ -26,6 +26,19 @@ test('rejects an empty slide list', () => {
   );
 });
 
+test('rejects malformed timings, text, ordering, and thresholds', () => {
+  const slides = [{ slide: 1, text: 'Valid slide' }];
+  assert.throws(() => matchTranscriptToSlides(slides, [{ start: NaN, end: 1, text: 'Hello' }]), /finite/i);
+  assert.throws(() => matchTranscriptToSlides(slides, [{ start: 1, end: 1, text: 'Hello' }]), /after start/i);
+  assert.throws(() => matchTranscriptToSlides(slides, [{ start: 0, end: 1, text: '  ' }]), /text/i);
+  assert.throws(() => matchTranscriptToSlides([{ slide: 1, text: '' }], []), /slide text/i);
+  assert.throws(() => matchTranscriptToSlides(slides, [
+    { start: 1, end: 2, text: 'One' },
+    { start: 0, end: 1, text: 'Two' },
+  ]), /chronological/i);
+  assert.throws(() => matchTranscriptToSlides(slides, [], { minimumScore: 2 }), /between 0 and 1/i);
+});
+
 test('flags weak narration-to-slide matches for human review', () => {
   const result = matchTranscriptToSlides(
     [{ slide: 1, text: 'Budget and delivery schedule' }],
