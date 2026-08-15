@@ -12,7 +12,7 @@ export const TOOLCHAIN = Object.freeze([
   { name: 'ffmpeg', tier: 'required', purpose: 'media conversion and assembly', probeArgs: ['-version'] },
   { name: 'ffprobe', tier: 'required', purpose: 'stream and timing verification', probeArgs: ['-version'] },
   { name: 'node', tier: 'required', purpose: 'toolkit and deck scripts', probeArgs: ['--version'] },
-  { name: 'python3', tier: 'required', purpose: 'alignment and ML tools', probeArgs: ['--version'] },
+  { name: 'python3', tier: 'required', purpose: 'alignment and ML tools', probeArgs: ['--version'], windowsCommand: 'python' },
   { name: 'jq', tier: 'required', purpose: 'manifest and API processing', probeArgs: ['--version'] },
   { name: 'voicebox', tier: 'required', purpose: 'authorised local voice cloning service' },
   { name: 'soffice', tier: 'required', purpose: 'PowerPoint rendering', probeArgs: ['--version'] },
@@ -44,7 +44,9 @@ export function verifyToolPath(tool, path) {
 }
 
 export function toolPathCandidates(tool, platform = process.platform) {
-  const command = tool.command ?? tool.name;
+  const command = platform === 'win32'
+    ? (tool.windowsCommand ?? tool.command ?? tool.name)
+    : (tool.command ?? tool.name);
   if (platform === 'win32') {
     return [
       join(PROJECT_ROOT, '.venv', 'Scripts', `${command}.exe`),
@@ -99,7 +101,9 @@ function resolveInstalledTool(tool) {
       return result.status === 0 ? mfa : null;
     }
   }
-  const command = tool.command ?? tool.name;
+  const command = process.platform === 'win32'
+    ? (tool.windowsCommand ?? tool.command ?? tool.name)
+    : (tool.command ?? tool.name);
   for (const candidate of toolPathCandidates(tool)) {
     const verified = verifyToolPath(tool, candidate);
     if (verified) return verified;

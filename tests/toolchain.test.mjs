@@ -29,9 +29,11 @@ test('tool specs define a harmless executable probe', () => {
   }
 });
 
-test('tool path candidates use Windows virtual-environment layout', () => {
+test('tool path candidates use Windows virtual-environment layout and aliases', () => {
   const paths = toolPathCandidates({ name: 'whisperx' }, 'win32');
   assert.match(paths[0], /\.venv[\\/]Scripts[\\/]whisperx\.exe$/i);
+  const python = TOOLCHAIN.find((tool) => tool.name === 'python3');
+  assert.match(toolPathCandidates(python, 'win32')[0], /[\\/]python\.exe$/i);
 });
 
 test('tool-path verification rejects an existing broken executable', () => {
