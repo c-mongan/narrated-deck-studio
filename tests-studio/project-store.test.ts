@@ -46,7 +46,7 @@ test("a conversational revision can cancel an in-flight local generation", async
   await approveGate(manifest, "plan", "Dad", hash);
   await requestRevision(manifest, "plan", "Use a shorter series", "Dad", true);
   const marker = path.join(manifest.workspaceRoot, "private", "cancel-running");
-  assert.equal((await stat(marker)).mode & 0o777, 0o600);
+  if (process.platform !== "win32") assert.equal((await stat(marker)).mode & 0o777, 0o600);
   assert.match(await readFile(marker, "utf8"), /^\d{4}-\d{2}-\d{2}T/);
   assert.equal(manifest.approvals.plan, undefined);
   assert.equal(manifest.state, "planned");
