@@ -8,9 +8,9 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "node scripts/run_node_tests.mjs && tsx --test tests-studio/*.test.ts && node scripts/test_world_class_decks.mjs",
+    "test": "node scripts/run_node_tests.mjs && node scripts/run_studio_tests.mjs && node scripts/test_world_class_decks.mjs",
     "test:legacy": "node scripts/run_node_tests.mjs",
-    "test:studio": "tsx --test tests-studio/*.test.ts",
+    "test:studio": "node scripts/run_studio_tests.mjs",
     "test:decks": "node scripts/test_world_class_decks.mjs",
     "lint": "tsc -p tsconfig.json --noEmit",
     "validate": "node scripts/validate_job.mjs templates/job-manifest.example.json && node scripts/validate_chapters.mjs templates/chapter-manifest.example.json",
