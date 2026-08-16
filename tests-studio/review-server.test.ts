@@ -20,6 +20,9 @@ test("review server is token protected and records plan approval", async () => {
     const page = await fetch(handle.url);
     assert.equal(page.status, 200);
     const html = await page.text();
+    assert.match(html, /What this series will make/);
+    assert.match(html, /Show technical details/);
+    assert.doesNotMatch(html, /<h2>Details<\/h2>/);
     const hash = html.match(/name="hash" value="([a-f0-9]{64})"/)?.[1];
     assert.ok(hash);
     const approved = await fetch(`${parsed.origin}/approve?token=${parsed.searchParams.get("token")}`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ gate: "plan", hash: hash!, actor: "Dad" }), redirect: "manual" });
