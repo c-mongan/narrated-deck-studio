@@ -3,9 +3,21 @@ import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
+import type { WebpackOverrideFn } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
 import type { CaptionCue } from "./captions.js";
 import type { SlideTiming } from "./powerpoint-narration.js";
+
+export const remotionWebpackOverride: WebpackOverrideFn = (configuration) => ({
+  ...configuration,
+  resolve: {
+    ...configuration.resolve,
+    extensionAlias: {
+      ...configuration.resolve?.extensionAlias,
+      ".js": [".tsx", ".ts", ".js"],
+    },
+  },
+});
 
 export async function renderNarratedSlidesWithRemotion(options: { images: string[]; timings: SlideTiming[]; audioMaster: string; captions: CaptionCue[]; output: string }): Promise<void> {
   if (options.images.length !== options.timings.length) throw new Error("One image is required for every slide timing");
@@ -23,7 +35,7 @@ export async function renderNarratedSlidesWithRemotion(options: { images: string
     captions: options.captions,
   };
   await mkdir(path.dirname(options.output), { recursive: true });
-  const serveUrl = await bundle({ entryPoint, webpackOverride: (configuration) => configuration });
+  const serveUrl = await bundle({ entryPoint, webpackOverride: remotionWebpackOverride });
   const composition = await selectComposition({ serveUrl, id: "NarratedSlides", inputProps });
   await renderMedia({ serveUrl, composition, codec: "h264", outputLocation: options.output, inputProps, audioCodec: "aac", imageFormat: "jpeg", crf: 18 });
 }
