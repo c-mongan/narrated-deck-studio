@@ -8,10 +8,13 @@ const server = path.join(root, "mcpb", "server");
 const nonce = `${process.pid}-${Date.now()}`;
 const staging = `${server}.staging-${nonce}`;
 const previous = `${server}.previous-${nonce}`;
-const cacheDirectories = new Set([".mypy_cache", ".pytest_cache", ".ruff_cache", "__pycache__"]);
+const generatedDirectories = new Set([".mypy_cache", ".pytest_cache", ".ruff_cache", "__pycache__", "build", "dist"]);
 function runtimeSourceFilter(source) {
   const parts = source.split(path.sep);
-  return !parts.some((part) => cacheDirectories.has(part)) && !source.endsWith(".pyc") && !source.endsWith(".pyo");
+  return !parts.some((part) => generatedDirectories.has(part) || part.endsWith(".egg-info"))
+    && !source.endsWith(".coverage")
+    && !source.endsWith(".pyc")
+    && !source.endsWith(".pyo");
 }
 await rm(staging, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 await mkdir(staging, { recursive: true });
