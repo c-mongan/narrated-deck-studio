@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
@@ -14,10 +14,12 @@ export async function renderNarratedSlidesWithRemotion(options: { images: string
   const sourceEntry = path.join(moduleRoot, "packages", "remotion-compositor", "src", "index.tsx");
   const entryPoint = existsSync(compiledEntry) ? compiledEntry : sourceEntry;
   if (!existsSync(entryPoint)) throw new Error("The pinned Remotion composition entry point is missing");
+  const imageData = await Promise.all(options.images.map(async (image) => `data:image/png;base64,${(await readFile(image)).toString("base64")}`));
+  const audioData = `data:audio/wav;base64,${(await readFile(options.audioMaster)).toString("base64")}`;
   const inputProps = {
     fps: 30,
-    audioMaster: options.audioMaster,
-    slides: options.timings.map((timing, index) => ({ image: options.images[index]!, start: timing.start, end: timing.end })),
+    audioMaster: audioData,
+    slides: options.timings.map((timing, index) => ({ image: imageData[index]!, start: timing.start, end: timing.end })),
     captions: options.captions,
   };
   await mkdir(path.dirname(options.output), { recursive: true });

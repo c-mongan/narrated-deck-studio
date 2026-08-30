@@ -14,7 +14,8 @@ import { powerpointNarrationScript, type SlideTiming } from "./powerpoint-narrat
 import type { ProjectManifest, SeriesPlan } from "./types.js";
 import { validateJsonFile, validateJsonValue } from "./validation.js";
 
-const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const MODULE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const REPO_ROOT = existsSync(path.join(MODULE_ROOT, "package.json")) ? MODULE_ROOT : path.resolve(MODULE_ROOT, "..");
 const WCD_ROOT = path.join(REPO_ROOT, "packages", "world-class-decks");
 const PYTHONPATH = path.join(WCD_ROOT, "src");
 const PPT_MASTER_PIN = "0c0bdaf0dd953afc2c00322e92f26dc02fc1c51f";

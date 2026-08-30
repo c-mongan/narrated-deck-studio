@@ -70,6 +70,18 @@ def audit_pptx(path: Path, *, max_words_per_slide: int = 90, min_font_pt: float 
                                 )
                             )
 
+            # A large filled shape with no text or child objects is usually an
+            # unfilled visual placeholder. Small rules and decorative accents
+            # are intentionally ignored.
+            shape_area = shape.width * shape.height
+            slide_area = prs.slide_width * prs.slide_height
+            has_children = getattr(shape, "shape_type", None) == MSO_SHAPE_TYPE.GROUP and bool(shape.shapes)
+            has_text = bool(getattr(shape, "has_text_frame", False) and (shape.text or "").strip())
+            if shape_area >= slide_area * 0.12 and not has_text and not has_children and getattr(shape, "shape_type", None) == MSO_SHAPE_TYPE.AUTO_SHAPE:
+                fill = getattr(shape, "fill", None)
+                if fill is not None and fill.type is not None:
+                    findings.append(Finding("empty-panel", "Large filled shape has no text or visual content.", Severity.ERROR, slide_number, name))
+
         if slide_words > max_words_per_slide:
             findings.append(
                 Finding(

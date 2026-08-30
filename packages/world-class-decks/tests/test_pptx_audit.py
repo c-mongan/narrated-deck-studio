@@ -2,6 +2,8 @@ from pathlib import Path
 
 from pptx import Presentation
 from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
 
 from world_class_decks.qa.pptx import audit_pptx
 
@@ -29,3 +31,16 @@ def test_placeholder_fails(tmp_path):
     report = audit_pptx(path)
     assert not report.passed
     assert any(f.code == "placeholder" for f in report.findings)
+
+
+def test_large_empty_panel_fails(tmp_path):
+    path = tmp_path / "empty-panel.pptx"
+    prs = Presentation()
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    panel = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(5), Inches(1), Inches(6), Inches(5))
+    panel.fill.solid()
+    panel.fill.fore_color.rgb = RGBColor(20, 60, 90)
+    prs.save(path)
+    report = audit_pptx(path)
+    assert not report.passed
+    assert any(f.code == "empty-panel" for f in report.findings)

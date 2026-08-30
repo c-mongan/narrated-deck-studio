@@ -46,8 +46,8 @@ export async function generateVoiceboxTake(options: VoiceboxGenerationOptions): 
       text,
       profile_id: options.profileId,
       language: "en",
-      engine: options.engine ?? "qwen",
-      model_size: options.modelSize ?? "1.7B",
+      engine: options.engine ?? process.env.VOICEBOX_ENGINE ?? "qwen",
+      model_size: options.modelSize ?? process.env.VOICEBOX_MODEL ?? "1.7B",
       seed: options.seed,
       instruct: options.instruct || null,
       max_chunk_chars: options.maxChunkChars ?? 800,
@@ -77,5 +77,11 @@ export async function generateVoiceboxTake(options: VoiceboxGenerationOptions): 
   }
   const audio = await checkedFetch(`${base}/audio/${created.id}`);
   await writeFile(options.outputPath, Buffer.from(await audio.arrayBuffer()), { mode: 0o600 });
-  return { generationId: created.id, engine: options.engine ?? "qwen", modelSize: options.modelSize ?? "1.7B", seed: options.seed, voiceboxVersion: healthBody.version ?? "unknown" };
+  return {
+    generationId: created.id,
+    engine: options.engine ?? process.env.VOICEBOX_ENGINE ?? "qwen",
+    modelSize: options.modelSize ?? process.env.VOICEBOX_MODEL ?? "1.7B",
+    seed: options.seed,
+    voiceboxVersion: healthBody.version ?? "unknown",
+  };
 }

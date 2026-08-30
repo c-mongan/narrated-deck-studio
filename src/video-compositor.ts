@@ -25,7 +25,10 @@ export async function composeNarratedSlides(options: {
   await writeFile(concatPath, `${lines.join("\n")}\n`, { mode: 0o600 });
   const args = ["-hide_banner", "-nostdin", "-y", "-safe", "0", "-f", "concat", "-i", concatPath, "-i", options.audioMaster];
   const filters = ["scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=black,fps=30,format=yuv420p"];
-  if (options.captions) filters.push(`subtitles=${options.captions.replace(/([\\:'])/g, "\\$1")}`);
+  if (options.captions && process.env.NDS_BURN_CAPTIONS !== "0") {
+    const captionPath = options.captions.replace(/([\\:'])/g, "\\$1");
+    filters.push(`subtitles=filename='${captionPath}'`);
+  }
   args.push("-vf", filters.join(","), "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", options.output);
   await new Promise<void>((resolve, reject) => {
     const child = spawn("ffmpeg", args, { stdio: ["ignore", "ignore", "pipe"], shell: false });

@@ -1,10 +1,26 @@
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020Module from "ajv/dist/2020.js";
 import addFormatsModule from "ajv-formats";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+async function schemaPath(kind: SchemaKind): Promise<string> {
+  const candidates = [
+    path.join(root, "schemas", `${kind}.schema.json`),
+    path.join(root, "..", "schemas", `${kind}.schema.json`),
+  ];
+  for (const candidate of candidates) {
+    try {
+      await access(candidate);
+      return candidate;
+    } catch {
+      // Try the next supported runtime layout.
+    }
+  }
+  throw new Error(`Schema not found for ${kind}`);
+}
 
 export type SchemaKind = "project-manifest" | "inventory" | "series-plan" | "timeline" | "approval-receipt" | "release-report";
 
@@ -13,7 +29,7 @@ async function validator(kind: SchemaKind) {
   const addFormats = (addFormatsModule as unknown as { default?: typeof addFormatsModule }).default ?? addFormatsModule;
   const ajv = new (Ajv2020 as unknown as new (options: Record<string, unknown>) => import("ajv").default)({ allErrors: true, strict: true });
   (addFormats as unknown as (instance: import("ajv").default) => void)(ajv);
-  const schema = JSON.parse(await readFile(path.join(root, "schemas", `${kind}.schema.json`), "utf8"));
+  const schema = JSON.parse(await readFile(await schemaPath(kind), "utf8"));
   const validate = ajv.compile(schema);
   return { ajv, validate };
 }
