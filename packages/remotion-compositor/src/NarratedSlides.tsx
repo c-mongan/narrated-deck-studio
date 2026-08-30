@@ -4,9 +4,14 @@ import { AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame } from
 export interface NarratedSlideProps {
   [key: string]: unknown;
   fps: number;
+  durationSeconds: number;
   audioMaster: string;
   slides: Array<{ image: string; start: number; end: number }>;
   captions: Array<{ start: number; end: number; text: string }>;
+}
+
+export function narratedDurationInFrames(props: NarratedSlideProps): number {
+  return Math.max(1, Math.ceil(Math.max(props.durationSeconds, ...props.slides.map((slide) => slide.end), 1) * props.fps));
 }
 
 function SlideImage({ image, durationInFrames }: { image: string; durationInFrames: number }) {
