@@ -6,6 +6,8 @@ Run `npm run engines:install` first on a fresh machine. It installs the exact PP
 
 Build the extension with `npm run mcp:build`. The bundle contains compiled JavaScript, runtime-only dependencies, schemas, the Remotion composition, required media scripts, and the attributed World Class Decks package. It declares macOS and Windows compatibility and starts a stdio MCP server; the review app binds only to `127.0.0.1`.
 
+Build the MCPB on the operating system where it will be installed. Remotion and its bundler use native packages, so a bundle built on macOS is not a Windows bundle, and a Windows bundle is not a macOS bundle. The source repository supports both platforms; each distributable archive is platform-specific.
+
 The bundle deliberately has no `approve` tool and no arbitrary command tool. Human approval only occurs in the token-protected local review page.
 
 ## Signing gate

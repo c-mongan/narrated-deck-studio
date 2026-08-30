@@ -10,7 +10,7 @@ import type { SeriesPlan } from "../src/types.js";
 async function plannedProject() {
   const source = await mkdtemp(path.join(os.tmpdir(), "nds-project-"));
   const manifest = await createProject(source);
-  const plan: SeriesPlan = { schemaVersion: 1, createdAt: new Date().toISOString(), audience: "Dad", desiredAction: "Understand", style: "calm", voiceSource: "preset", disclosure: "AI voice", conceptTerritories: ["one", "two", "three"].map((id) => ({ id, name: id, direction: id })), unresolvedQuestions: [], items: [{ id: "item-01", title: "One", purpose: "Explain", targetDurationSeconds: 60, wordBudget: 145, slideBudget: 4, sourcePriorities: [], deckStrategy: "create-new", scriptStatus: "not-started", deliverables: ["pptx"] }] };
+  const plan: SeriesPlan = { schemaVersion: 1, createdAt: new Date().toISOString(), audience: "Example audience", desiredAction: "Understand", style: "calm", voiceSource: "preset", disclosure: "AI voice", conceptTerritories: ["one", "two", "three"].map((id) => ({ id, name: id, direction: id })), unresolvedQuestions: [], items: [{ id: "item-01", title: "One", purpose: "Explain", targetDurationSeconds: 60, wordBudget: 145, slideBudget: 4, sourcePriorities: [], deckStrategy: "create-new", scriptStatus: "not-started", deliverables: ["pptx"] }] };
   await savePlan(manifest, plan);
   return manifest;
 }
@@ -18,7 +18,7 @@ async function plannedProject() {
 test("approval is bound to the exact artifact and invalidation is downstream", async () => {
   const manifest = await plannedProject();
   const hash = await artifactHash(manifest, "plan");
-  await approveGate(manifest, "plan", "Dad", hash);
+  await approveGate(manifest, "plan", "Example Reviewer", hash);
   assert.equal(manifest.state, "plan_approved");
   assert.ok(manifest.approvals.plan);
   await invalidateApprovals(manifest, "plan", "changed");
@@ -28,7 +28,7 @@ test("approval is bound to the exact artifact and invalidation is downstream", a
 
 test("stale approval hashes fail closed", async () => {
   const manifest = await plannedProject();
-  await assert.rejects(approveGate(manifest, "plan", "Dad", "0".repeat(64)), /changed/);
+  await assert.rejects(approveGate(manifest, "plan", "Example Reviewer", "0".repeat(64)), /changed/);
 });
 
 test("Git-managed source folders require an external private workspace", async () => {
@@ -43,8 +43,8 @@ test("Git-managed source folders require an external private workspace", async (
 test("a conversational revision can cancel an in-flight local generation", async () => {
   const manifest = await plannedProject();
   const hash = await artifactHash(manifest, "plan");
-  await approveGate(manifest, "plan", "Dad", hash);
-  await requestRevision(manifest, "plan", "Use a shorter series", "Dad", true);
+  await approveGate(manifest, "plan", "Example Reviewer", hash);
+  await requestRevision(manifest, "plan", "Use a shorter series", "Example Reviewer", true);
   const marker = path.join(manifest.workspaceRoot, "private", "cancel-running");
   if (process.platform !== "win32") assert.equal((await stat(marker)).mode & 0o777, 0o600);
   assert.match(await readFile(marker, "utf8"), /^\d{4}-\d{2}-\d{2}T/);

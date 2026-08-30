@@ -7,7 +7,7 @@
   "description": "Consent-first local production of vetted narrated PowerPoints and videos from a folder of source material.",
   "long_description": "Lets Claude Cowork safely inventory an approved folder, clarify and review a series plan, orchestrate editable PowerPoint authoring, clone an authorised voice locally, align narration, and release reviewed PPTX, PPSX and MP4 deliverables. Human approval is required at four gates.",
   "author": { "name": "Narrated Deck Studio contributors" },
-  "repository": { "type": "git", "url": "https://github.com/c-mongan/narrated-demo-toolkit" },
+  "repository": { "type": "git", "url": "https://github.com/c-mongan/narrated-deck-studio" },
   "license": "MIT",
   "keywords": ["powerpoint", "narration", "voice", "cowork", "local-first", "accessibility"],
   "server": {

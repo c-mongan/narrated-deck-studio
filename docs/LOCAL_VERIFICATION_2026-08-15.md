@@ -17,4 +17,4 @@ This file records evidence from the current macOS development machine. It is not
 - WhisperX, Demucs, pyannote, scenedetect and MFA are not installed in the current isolated Python environment. The executable WhisperX adapter and fail-closed review gate are implemented, but a real aligned narration has not run here.
 - The machine has limited free disk space, so the large locked media environment was not installed automatically.
 - Cowork is not installed. MCPB packaging is validated, but signing and clean Cowork installation remain external release gates.
-- Dad has not yet completed the zero-terminal first-user acceptance scenarios.
+- A first-time user has not yet completed the zero-terminal acceptance scenarios.

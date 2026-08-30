@@ -8,6 +8,8 @@ from pptx.util import Inches, Pt
 OUT = Path(__file__).with_name("demo.pptx")
 
 prs = Presentation()
+prs.core_properties.author = "World Class Decks contributors"
+prs.core_properties.last_modified_by = "World Class Decks contributors"
 prs.slide_width = Inches(13.333)
 prs.slide_height = Inches(7.5)
 

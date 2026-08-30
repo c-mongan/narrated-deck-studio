@@ -9,7 +9,7 @@
 
 ## World Class Decks
 
-- Source snapshot: `/Users/conormongan/Documents/world-class-decks-v0.2.wROCx1/world-class-decks`
+- Source snapshot: local `world-class-decks` v0.2 checkout.
 - Upstream snapshot commit: `fcb777335fd6950818f2bcd7214225f61a055214`.
 - Import method: `git subtree add --prefix=packages/world-class-decks ... master`.
 - Import commit: `c0725ba`.

@@ -42,6 +42,8 @@ versions used for release verification are recorded in `TOOLCHAIN_VERSIONS.md`;
 Homebrew may resolve newer compatible bottles, which the executable doctor then
 checks.
 
+The media lock currently contains upstream packages with known security advisories that cannot be upgraded without breaking the latest stable WhisperX dependency constraint. Do not load untrusted model or checkpoint files. Use this environment only as an isolated development tool until compatible patched releases are available. See [SECURITY.md](SECURITY.md) for the current boundary and audit command.
+
 Voicebox is the approved voice-cloning engine. It remains a separately installed
 local application/service; this repository calls its API through
 `scripts/voicebox_generate.sh`. Do not commit its profiles, IDs, references or

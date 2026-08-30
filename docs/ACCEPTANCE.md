@@ -27,8 +27,9 @@
 ## Release blockers
 
 - Trusted MCPB signature and clean Cowork installation on macOS and Windows.
+- Compatible patched releases for the known Python media dependency advisories, followed by a fresh dependency audit.
 - Native Microsoft PowerPoint PPTX/PPSX playback evidence on both platforms.
-- Dad completes create-new, improve-existing, one-output and multi-output trials without developer help.
+- A first-time user completes create-new, improve-existing, one-output and multi-output trials without developer help.
 - Failure trials: refused consent, unauthorised YouTube, missing tools, cancellation, restart and revisions after every approval.
 
 Automated or LibreOffice evidence must never be upgraded into a native PowerPoint or first-user acceptance claim.

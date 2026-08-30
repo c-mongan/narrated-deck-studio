@@ -69,7 +69,7 @@ async function reviewBody(manifest: ProjectManifest, gate: ApprovalGate, token: 
   const hash = await artifactHash(manifest, gate);
   const approval = gate === "release" && subject.passed !== true
     ? `<p class="notice warning"><strong>Approval is disabled.</strong> Resolve every release blocker and rerun QA.</p>`
-    : `<form method="post" action="/approve?token=${token}"><input type="hidden" name="gate" value="${gate}"><input type="hidden" name="hash" value="${hash}"><label>Your name <input name="actor" required value="Dad"></label><button type="submit">Approve and continue</button></form>`;
+    : `<form method="post" action="/approve?token=${token}"><input type="hidden" name="gate" value="${gate}"><input type="hidden" name="hash" value="${hash}"><label>Your name <input name="actor" required autocomplete="name" placeholder="Reviewer name"></label><button type="submit">Approve and continue</button></form>`;
   return `<div class="eyebrow">Approval ${["plan", "deck", "voice", "release"].indexOf(gate) + 1} of 4</div><h1>${label}</h1><p class="notice">Please review this carefully. Approval is recorded against the exact version shown here; later edits automatically invalidate downstream work.</p>${choices}<details><summary>Show technical details</summary><pre>${escapeHtml(JSON.stringify(subject, null, 2))}</pre></details>${approval}`;
 }
 

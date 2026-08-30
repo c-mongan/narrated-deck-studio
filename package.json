@@ -2,6 +2,17 @@
   "name": "narrated-deck-studio",
   "version": "0.3.0",
   "private": true,
+  "description": "Consent-first local production of reviewed narrated PowerPoints and videos.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/c-mongan/narrated-deck-studio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/c-mongan/narrated-deck-studio/issues"
+  },
+  "homepage": "https://github.com/c-mongan/narrated-deck-studio#readme",
+  "packageManager": "npm@10.9.8",
   "type": "module",
   "bin": {
     "nds": "dist/src/cli.js"
@@ -13,6 +24,7 @@
     "test:studio": "node scripts/run_studio_tests.mjs",
     "test:decks": "node scripts/test_world_class_decks.mjs",
     "lint": "tsc -p tsconfig.json --noEmit",
+    "verify": "npm run lint && npm test && npm run validate && npm run mcp:build && npm run smoke:mcp",
     "validate": "node scripts/validate_job.mjs templates/job-manifest.example.json && node scripts/validate_chapters.mjs templates/chapter-manifest.example.json",
     "doctor": "node scripts/toolchain.mjs",
     "studio": "tsx src/cli.ts",

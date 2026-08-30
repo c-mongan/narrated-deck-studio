@@ -10,7 +10,7 @@ import type { SeriesPlan } from "../src/types.js";
 test("review server is token protected and records plan approval", async () => {
   const source = await mkdtemp(path.join(os.tmpdir(), "nds-review-"));
   const manifest = await createProject(source);
-  const plan: SeriesPlan = { schemaVersion: 1, createdAt: new Date().toISOString(), audience: "Dad", desiredAction: "Learn", style: "calm", voiceSource: "preset", disclosure: "AI", conceptTerritories: ["one", "two", "three"].map((id) => ({ id, name: id, direction: id })), unresolvedQuestions: [], items: [{ id: "item-01", title: "One", purpose: "Learn", targetDurationSeconds: 60, wordBudget: 145, slideBudget: 4, sourcePriorities: [], deckStrategy: "create-new", scriptStatus: "not-started", deliverables: ["pptx"] }] };
+  const plan: SeriesPlan = { schemaVersion: 1, createdAt: new Date().toISOString(), audience: "Example audience", desiredAction: "Learn", style: "calm", voiceSource: "preset", disclosure: "AI", conceptTerritories: ["one", "two", "three"].map((id) => ({ id, name: id, direction: id })), unresolvedQuestions: [], items: [{ id: "item-01", title: "One", purpose: "Learn", targetDurationSeconds: 60, wordBudget: 145, slideBudget: 4, sourcePriorities: [], deckStrategy: "create-new", scriptStatus: "not-started", deliverables: ["pptx"] }] };
   await savePlan(manifest, plan);
   const handle = await startReviewServer(manifest.workspaceRoot);
   try {
@@ -23,9 +23,11 @@ test("review server is token protected and records plan approval", async () => {
     assert.match(html, /What this series will make/);
     assert.match(html, /Show technical details/);
     assert.doesNotMatch(html, /<h2>Details<\/h2>/);
+    assert.match(html, /placeholder="Reviewer name"/);
+    assert.doesNotMatch(html, /name="actor"[^>]+value=/);
     const hash = html.match(/name="hash" value="([a-f0-9]{64})"/)?.[1];
     assert.ok(hash);
-    const approved = await fetch(`${parsed.origin}/approve?token=${parsed.searchParams.get("token")}`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ gate: "plan", hash: hash!, actor: "Dad" }), redirect: "manual" });
+    const approved = await fetch(`${parsed.origin}/approve?token=${parsed.searchParams.get("token")}`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ gate: "plan", hash: hash!, actor: "Example Reviewer" }), redirect: "manual" });
     assert.equal(approved.status, 303);
   } finally { await handle.close(); }
 });

@@ -8,13 +8,18 @@ const server = path.join(root, "mcpb", "server");
 const nonce = `${process.pid}-${Date.now()}`;
 const staging = `${server}.staging-${nonce}`;
 const previous = `${server}.previous-${nonce}`;
+const cacheDirectories = new Set([".mypy_cache", ".pytest_cache", ".ruff_cache", "__pycache__"]);
+function runtimeSourceFilter(source) {
+  const parts = source.split(path.sep);
+  return !parts.some((part) => cacheDirectories.has(part)) && !source.endsWith(".pyc") && !source.endsWith(".pyo");
+}
 await rm(staging, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 await mkdir(staging, { recursive: true });
 await cp(path.join(root, "dist", "src"), path.join(staging, "src"), { recursive: true });
 await cp(path.join(root, "schemas"), path.join(staging, "schemas"), { recursive: true });
 await cp(path.join(root, "scripts"), path.join(staging, "scripts"), { recursive: true, filter: (source) => !source.endsWith("prepare_mcpb.mjs") });
 await cp(path.join(root, "dist", "packages", "remotion-compositor"), path.join(staging, "packages", "remotion-compositor"), { recursive: true });
-await cp(path.join(root, "packages", "world-class-decks"), path.join(staging, "packages", "world-class-decks"), { recursive: true });
+await cp(path.join(root, "packages", "world-class-decks"), path.join(staging, "packages", "world-class-decks"), { recursive: true, filter: runtimeSourceFilter });
 await writeFile(path.join(staging, "package.json"), `${JSON.stringify({
   name: "narrated-deck-studio-mcp-runtime",
   version: "0.3.0",
