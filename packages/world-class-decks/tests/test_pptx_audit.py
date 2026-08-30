@@ -44,3 +44,20 @@ def test_large_empty_panel_fails(tmp_path):
     report = audit_pptx(path)
     assert not report.passed
     assert any(f.code == "empty-panel" for f in report.findings)
+
+
+def test_full_slide_background_is_not_an_empty_panel(tmp_path):
+    path = tmp_path / "background.pptx"
+    prs = Presentation()
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    background = slide.shapes.add_shape(
+        MSO_SHAPE.RECTANGLE, 0, 0, prs.slide_width, prs.slide_height
+    )
+    background.fill.solid()
+    background.fill.fore_color.rgb = RGBColor(20, 60, 90)
+    prs.save(path)
+
+    report = audit_pptx(path)
+
+    assert report.passed
+    assert not any(f.code == "empty-panel" for f in report.findings)

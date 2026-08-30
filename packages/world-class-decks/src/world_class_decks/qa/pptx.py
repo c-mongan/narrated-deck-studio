@@ -77,7 +77,21 @@ def audit_pptx(path: Path, *, max_words_per_slide: int = 90, min_font_pt: float 
             slide_area = prs.slide_width * prs.slide_height
             has_children = getattr(shape, "shape_type", None) == MSO_SHAPE_TYPE.GROUP and bool(shape.shapes)
             has_text = bool(getattr(shape, "has_text_frame", False) and (shape.text or "").strip())
-            if shape_area >= slide_area * 0.12 and not has_text and not has_children and getattr(shape, "shape_type", None) == MSO_SHAPE_TYPE.AUTO_SHAPE:
+            covers_slide = (
+                shape.left <= 0
+                and shape.top <= 0
+                and shape.left + shape.width >= prs.slide_width
+                and shape.top + shape.height >= prs.slide_height
+            )
+            is_auto_shape = getattr(shape, "shape_type", None) == MSO_SHAPE_TYPE.AUTO_SHAPE
+            is_large_empty_panel = (
+                shape_area >= slide_area * 0.12
+                and not covers_slide
+                and not has_text
+                and not has_children
+                and is_auto_shape
+            )
+            if is_large_empty_panel:
                 fill = getattr(shape, "fill", None)
                 if fill is not None and fill.type is not None:
                     findings.append(Finding("empty-panel", "Large filled shape has no text or visual content.", Severity.ERROR, slide_number, name))
