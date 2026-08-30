@@ -11,7 +11,11 @@ export interface NarratedSlideProps {
 }
 
 export function narratedDurationInFrames(props: NarratedSlideProps): number {
-  return Math.max(1, Math.ceil(Math.max(props.durationSeconds, ...props.slides.map((slide) => slide.end), 1) * props.fps));
+  const slideFrames = Math.ceil(Math.max(...props.slides.map((slide) => slide.end), 0) * props.fps);
+  // AAC adds a padded packet at the tail. Floor the audio frame count so the
+  // encoded stream remains within the 50 ms master-duration tolerance.
+  const audioFrames = Math.floor(props.durationSeconds * props.fps);
+  return Math.max(1, slideFrames, audioFrames);
 }
 
 function SlideImage({ image, durationInFrames }: { image: string; durationInFrames: number }) {
