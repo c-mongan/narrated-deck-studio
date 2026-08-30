@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -27,5 +27,27 @@ test("review server is token protected and records plan approval", async () => {
     assert.ok(hash);
     const approved = await fetch(`${parsed.origin}/approve?token=${parsed.searchParams.get("token")}`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ gate: "plan", hash: hash!, actor: "Dad" }), redirect: "manual" });
     assert.equal(approved.status, 303);
+  } finally { await handle.close(); }
+});
+
+test("review server serves assets when the workspace path resolves through an alias", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nds-review-alias-"));
+  const source = path.join(root, "source");
+  const actualWorkspace = path.join(root, "actual-workspace");
+  const workspaceAlias = path.join(root, "workspace-alias");
+  await mkdir(source);
+  await mkdir(actualWorkspace);
+  await symlink(actualWorkspace, workspaceAlias, "dir");
+  const manifest = await createProject(source, workspaceAlias);
+  await writeFile(path.join(manifest.workspaceRoot, "preview.png"), "preview");
+
+  const handle = await startReviewServer(manifest.workspaceRoot);
+  try {
+    const parsed = new URL(handle.url);
+    const asset = await fetch(
+      `${parsed.origin}/asset?token=${parsed.searchParams.get("token")}&path=preview.png`,
+    );
+    assert.equal(asset.status, 200);
+    assert.equal(await asset.text(), "preview");
   } finally { await handle.close(); }
 });

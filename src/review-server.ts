@@ -74,6 +74,7 @@ export interface ReviewServerHandle { url: string; close: () => Promise<void> }
 
 export async function startReviewServer(workspaceRoot: string, host = "127.0.0.1", port = 0): Promise<ReviewServerHandle> {
   assertLoopbackHost(host);
+  const canonicalWorkspaceRoot = await realpath(workspaceRoot);
   const token = randomBytes(24).toString("hex");
   const server = http.createServer(async (request, response) => {
     try {
@@ -83,7 +84,7 @@ export async function startReviewServer(workspaceRoot: string, host = "127.0.0.1
       if (request.method === "GET" && url.pathname === "/asset") {
         const relative = url.searchParams.get("path") ?? "";
         const absolute = await realpath(path.resolve(manifest.workspaceRoot, relative));
-        assertWithinRoot(manifest.workspaceRoot, absolute);
+        assertWithinRoot(canonicalWorkspaceRoot, absolute);
         const extension = path.extname(absolute).toLowerCase();
         if (!MIME[extension] || extension === ".json") return send(response, 403, "Unsupported review asset");
         response.writeHead(200, { "Content-Type": MIME[extension], "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
