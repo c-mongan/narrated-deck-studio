@@ -56,7 +56,7 @@
     "commander": "^15.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "remotion": "^4.0.512",
+    "remotion": "^4.0.518",
     "zod": "^3.25.76"
   },
   "devDependencies": {
