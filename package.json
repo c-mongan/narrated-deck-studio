@@ -57,7 +57,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "remotion": "^4.0.512",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@anthropic-ai/mcpb": "^2.1.2",
