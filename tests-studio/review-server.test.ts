@@ -32,7 +32,9 @@ test("review server is token protected and records plan approval", async () => {
   } finally { await handle.close(); }
 });
 
-test("review server serves assets when the workspace path resolves through an alias", async () => {
+test("review server serves assets when the workspace path resolves through an alias", {
+  skip: process.platform === "win32" ? "Windows private ACLs reject reparse-point workspaces" : false,
+}, async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nds-review-alias-"));
   const source = path.join(root, "source");
   const actualWorkspace = path.join(root, "actual-workspace");
@@ -52,6 +54,19 @@ test("review server serves assets when the workspace path resolves through an al
     assert.equal(asset.status, 200);
     assert.equal(await asset.text(), "preview");
   } finally { await handle.close(); }
+});
+
+test("Windows private workspace hardening rejects an aliased workspace", {
+  skip: process.platform !== "win32" ? "requires native Windows reparse-point handling" : false,
+}, async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nds-review-alias-rejected-"));
+  const source = path.join(root, "source");
+  const actualWorkspace = path.join(root, "actual-workspace");
+  const workspaceAlias = path.join(root, "workspace-alias");
+  await mkdir(source);
+  await mkdir(actualWorkspace);
+  await symlink(actualWorkspace, workspaceAlias, "dir");
+  await assert.rejects(createProject(source, workspaceAlias), /Reparse points are not allowed/);
 });
 
 test("review server hides release approval while QA has blockers", async () => {
