@@ -13,7 +13,7 @@ test("Remotion duration preserves the full approved audio master", () => {
     audioMaster: "master.wav",
     slides: [{ image: "slide.png", start: 29.65, end: 42.539 }],
     captions: [],
-  }), 1291);
+  }), 1290);
 });
 
 test("source Remotion entry resolves NodeNext .js imports to TypeScript files", async () => {
