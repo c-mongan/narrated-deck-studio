@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { createProject, savePlan } from "../src/project-store.js";
+import { atomicWriteJson, createProject, savePlan, saveProject } from "../src/project-store.js";
 import { startReviewServer } from "../src/review-server.js";
 import type { SeriesPlan } from "../src/types.js";
 
@@ -49,5 +49,30 @@ test("review server serves assets when the workspace path resolves through an al
     );
     assert.equal(asset.status, 200);
     assert.equal(await asset.text(), "preview");
+  } finally { await handle.close(); }
+});
+
+test("review server hides release approval while QA has blockers", async () => {
+  const source = await mkdtemp(path.join(os.tmpdir(), "nds-release-blocked-"));
+  const manifest = await createProject(source);
+  manifest.state = "assembled";
+  await saveProject(manifest);
+  await atomicWriteJson(path.join(manifest.workspaceRoot, "reports", "assembly.json"), { schemaVersion: 1, items: [] });
+  await atomicWriteJson(path.join(manifest.workspaceRoot, "reports", "release-report.json"), {
+    schemaVersion: 1,
+    checkedAt: new Date().toISOString(),
+    passed: false,
+    blockers: ["native PowerPoint narration is missing"],
+    items: [],
+    disclosurePresent: true,
+    nativePlaybackRequired: true,
+  });
+
+  const handle = await startReviewServer(manifest.workspaceRoot);
+  try {
+    const page = await fetch(handle.url);
+    const html = await page.text();
+    assert.match(html, /Approval is disabled/);
+    assert.doesNotMatch(html, /Approve and continue/);
   } finally { await handle.close(); }
 });
