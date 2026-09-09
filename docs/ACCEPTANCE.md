@@ -20,7 +20,7 @@
 
 ## Host acceptance
 
-- Codex and Hermes must connect to the same installed eight-tool MCP runtime and discover the same portable skill.
+- Codex and Hermes must connect to the same installed ten-tool MCP runtime and discover the same portable skill.
 - Cowork must install the signed MCPB and expose the same behavior; it is an additional host adapter, not the only workflow.
 - A folder containing N PowerPoints defaults to N independently planned presentations and N corresponding video/caption/deck deliverable sets unless the user explicitly approves grouping or splitting.
 

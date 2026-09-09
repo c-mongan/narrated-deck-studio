@@ -8,6 +8,7 @@ import { artifactHash, approveGate, atomicWriteJson, loadProject, publicProjectS
 import { assertLoopbackHost, assertWithinRoot } from "./security.js";
 import { gateArtifact } from "./constants.js";
 import type { ApprovalGate, ProjectManifest } from "./types.js";
+import { revisePilotNarration, type PilotPackage } from "./pilot.js";
 
 const MIME: Record<string, string> = {
   ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp",
@@ -29,7 +30,7 @@ function nextGate(manifest: ProjectManifest): ApprovalGate | null {
 
 function page(title: string, body: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><style>
-  :root{color-scheme:light;background:#f5f2ea;color:#17231d;font:18px/1.55 system-ui,-apple-system,sans-serif}body{max-width:960px;margin:0 auto;padding:32px}main{background:#fff;border-radius:22px;padding:clamp(24px,5vw,56px);box-shadow:0 16px 60px #17301d18}h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin:0 0 18px}h2{font-size:28px;margin-top:36px}h3{margin-bottom:8px}.eyebrow{color:#55705f;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.notice{background:#eef5ef;border-left:6px solid #386b49;padding:18px;border-radius:10px}.warning{background:#fff3d8;border-color:#b87914}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}.card{border:2px solid #dce5de;border-radius:16px;padding:20px}.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0}.fact{background:#f3f5f3;border-radius:12px;padding:16px}.fact strong{display:block;font-size:24px}details{margin-top:38px;border-top:1px solid #dce5de;padding-top:18px}summary{cursor:pointer;font-weight:700;color:#55705f}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5f3;padding:18px;border-radius:12px;font-size:14px}button{font:inherit;font-weight:800;background:#173c28;color:white;border:0;border-radius:999px;padding:14px 24px;cursor:pointer}button:hover{background:#245b3d}label{display:block;margin:12px 0}.muted{color:#637269}audio,video,img{max-width:100%;width:100%}</style></head><body><main>${body}</main></body></html>`;
+  :root{color-scheme:light;background:#f5f2ea;color:#17231d;font:18px/1.55 system-ui,-apple-system,sans-serif}body{max-width:960px;margin:0 auto;padding:32px}main{background:#fff;border-radius:22px;padding:clamp(24px,5vw,56px);box-shadow:0 16px 60px #17301d18}h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin:0 0 18px}h2{font-size:28px;margin-top:36px}h3{margin-bottom:8px}.eyebrow{color:#55705f;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.notice{background:#eef5ef;border-left:6px solid #386b49;padding:18px;border-radius:10px}.warning{background:#fff3d8;border-color:#b87914}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}.card{border:2px solid #dce5de;border-radius:16px;padding:20px;margin-bottom:18px}.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0}.fact{background:#f3f5f3;border-radius:12px;padding:16px}.fact strong{display:block;font-size:24px}details{margin-top:38px;border-top:1px solid #dce5de;padding-top:18px}summary{cursor:pointer;font-weight:700;color:#55705f}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5f3;padding:18px;border-radius:12px;font-size:14px}button{font:inherit;font-weight:800;background:#173c28;color:white;border:0;border-radius:999px;padding:14px 24px;cursor:pointer}button:hover{background:#245b3d}label{display:block;margin:12px 0}textarea{box-sizing:border-box;width:100%;font:inherit;padding:12px;border:2px solid #bdcbc0;border-radius:10px}.muted{color:#637269}audio,video,img{max-width:100%;width:100%}</style></head><body><main>${body}</main></body></html>`;
 }
 
 function planSummary(subject: Record<string, unknown>): string {
@@ -37,6 +38,14 @@ function planSummary(subject: Record<string, unknown>): string {
   const territories = Array.isArray(subject.conceptTerritories) ? subject.conceptTerritories as Array<Record<string, unknown>> : [];
   const totalSeconds = items.reduce((sum, item) => sum + Number(item.targetDurationSeconds ?? 0), 0);
   return `<h2>What this series will make</h2><div class="facts"><div class="fact"><span>Presentations</span><strong>${items.length}</strong></div><div class="fact"><span>Total narration</span><strong>${Math.round(totalSeconds / 60)} min</strong></div><div class="fact"><span>Audience</span><strong>${escapeHtml(subject.audience)}</strong></div></div><p><strong>Goal:</strong> ${escapeHtml(subject.desiredAction)}</p><p><strong>Visual tone:</strong> ${escapeHtml(subject.style)}</p><div class="grid">${items.map((item, index) => `<article class="card"><div class="eyebrow">Presentation ${index + 1}</div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.targetDurationSeconds)} seconds · up to ${escapeHtml(item.wordBudget)} spoken words · about ${escapeHtml(item.slideBudget)} slides</p><p class="muted">Source: ${escapeHtml((item.sourceDecks as unknown[] | undefined)?.join(", ") ?? (item.sourcePriorities as unknown[] | undefined)?.join(", ") ?? "source folder")}</p><p>Outputs: ${escapeHtml((item.deliverables as unknown[] | undefined)?.join(", "))}</p></article>`).join("")}</div><h2>Three directions to explore next</h2><div class="grid">${territories.map((territory) => `<article class="card"><h3>${escapeHtml(territory.name)}</h3><p>${escapeHtml(territory.direction)}</p></article>`).join("")}</div>`;
+}
+
+async function pilotSummary(manifest: ProjectManifest, token: string): Promise<string> {
+  const pathname = path.join(manifest.workspaceRoot, "review", "pilot-review.json");
+  const pilot = await readFile(pathname, "utf8").then((value) => JSON.parse(value) as PilotPackage, () => null);
+  if (!pilot) return "";
+  const interventions = pilot.items.reduce((sum, item) => sum + item.interventionCount, 0);
+  return `<section><h2>Representative pilot</h2><p class="notice"><strong>Draft review only.</strong> This sample helps catch narration and slide exceptions before full production. It does not approve or release anything.</p><div class="facts"><div class="fact"><span>Sample slides</span><strong>${pilot.items.reduce((sum, item) => sum + item.representativeSlides.length, 0)}</strong></div><div class="fact"><span>Slides flagged</span><strong>${interventions}</strong></div></div>${pilot.items.map((item) => `<article class="card"><div class="eyebrow">${escapeHtml(item.title)}</div><h3>Slides ${escapeHtml(item.representativeSlides.join(", "))}</h3>${item.previewAudio ? `<audio controls src="/asset?token=${token}&path=${encodeURIComponent(item.previewAudio.path)}"></audio><p class="muted">${escapeHtml(item.previewAudio.kind === "deterministic-test" ? "Deterministic test audio—not a voice-quality sample." : "Authorised voice preview.")}</p>` : `<p class="muted">No audio is attached yet. Review the representative narration below.</p>`}${item.slides.filter((slide) => slide.representative).map((slide) => `<form method="post" action="/pilot/revise?token=${token}"><strong>Slide ${slide.slide}: ${escapeHtml(slide.title)}</strong><label>Narration<textarea name="narration" rows="5" required>${escapeHtml(slide.narration)}</textarea></label>${slide.flags.length ? `<ul>${slide.flags.map((flag) => `<li>${escapeHtml(flag.message)}</li>`).join("")}</ul>` : `<p class="muted">No automated exception flags.</p>`}<input type="hidden" name="itemId" value="${escapeHtml(item.itemId)}"><input type="hidden" name="slide" value="${slide.slide}"><button type="submit">Save this slide only</button><p class="muted">Status: ${escapeHtml(slide.reviewStatus)}</p></form>`).join("")}</article>`).join("")}<details><summary>Show pilot failure counts</summary><pre>${escapeHtml(JSON.stringify(pilot.failureCategories, null, 2))}</pre></details></section>`;
 }
 
 async function readBody(request: IncomingMessage): Promise<URLSearchParams> {
@@ -51,7 +60,7 @@ async function reviewBody(manifest: ProjectManifest, gate: ApprovalGate, token: 
   const subject = JSON.parse(await readFile(artifactPath, "utf8")) as Record<string, unknown>;
   const label = { plan: "Scope and series plan", deck: "Story and visual direction", voice: "Voice audition", release: "Final release" }[gate];
   let choices = "";
-  if (gate === "plan") choices = planSummary(subject);
+  if (gate === "plan") choices = `${planSummary(subject)}${await pilotSummary(manifest, token)}`;
   if (gate === "deck") {
     const items = Array.isArray(subject.items) ? subject.items as Array<Record<string, unknown>> : [];
     choices = `<h2>Choose a direction</h2>${items.map((item) => { const candidates = Array.isArray(item.candidates) ? item.candidates as Array<Record<string, unknown>> : []; return `<h3>${escapeHtml(item.title ?? item.itemId)}</h3><form method="post" action="/select?token=${token}"><div class="grid">${candidates.map((candidate) => `<label class="card"><input type="radio" name="selection" value="${escapeHtml(candidate.id)}" ${item.selectedCandidate === candidate.id ? "checked" : ""}> <strong>${escapeHtml(candidate.name ?? candidate.id)}</strong><p>${escapeHtml(candidate.direction ?? "")}</p>${candidate.contactSheet ? `<img alt="Deck contact sheet" src="/asset?token=${token}&path=${encodeURIComponent(String(candidate.contactSheet))}">` : ""}</label>`).join("")}</div><input type="hidden" name="gate" value="deck"><input type="hidden" name="itemId" value="${escapeHtml(item.itemId)}"><button type="submit">Save this direction</button></form>`; }).join("")}`;
@@ -113,6 +122,13 @@ export async function startReviewServer(workspaceRoot: string, host = "127.0.0.1
         await atomicWriteJson(pathname, subject);
         return redirect(response, `/?token=${token}`);
       }
+      if (request.method === "POST" && url.pathname === "/pilot/revise") {
+        const form = await readBody(request);
+        const slide = Number(form.get("slide"));
+        if (!Number.isInteger(slide) || slide < 1) throw new Error("Pilot slide number is invalid");
+        await revisePilotNarration(manifest.workspaceRoot, form.get("itemId") ?? "", slide, form.get("narration") ?? "");
+        return redirect(response, `/?token=${token}`);
+      }
       if (request.method === "POST" && url.pathname === "/approve") {
         const form = await readBody(request);
         await approveGate(manifest, form.get("gate") as ApprovalGate, form.get("actor") || "Reviewer", form.get("hash") ?? "");
@@ -121,7 +137,7 @@ export async function startReviewServer(workspaceRoot: string, host = "127.0.0.1
       if (request.method !== "GET" || url.pathname !== "/") return send(response, 404, "Not found");
       const gate = nextGate(manifest);
       const status = publicProjectStatus(manifest);
-      const body = gate ? await reviewBody(manifest, gate, token) : `<div class="eyebrow">Narrated Deck Studio</div><h1>All caught up</h1><p class="notice">Your approval was recorded. There is no decision waiting right now.</p><div class="facts"><div class="fact"><span>Current stage</span><strong>${escapeHtml(String(status.state).replaceAll("_", " "))}</strong></div><div class="fact"><span>Presentations</span><strong>${escapeHtml(status.outputCount)}</strong></div></div><p>You can return to your agent. It will prepare the next review and tell you when this page is ready again.</p><details><summary>Show technical status</summary><pre>${escapeHtml(JSON.stringify(status, null, 2))}</pre></details>`;
+      const body = gate ? await reviewBody(manifest, gate, token) : `<div class="eyebrow">Narrated Deck Studio</div><h1>All caught up</h1><p class="notice">Your approval was recorded. There is no decision waiting right now.</p><div class="facts"><div class="fact"><span>Current stage</span><strong>${escapeHtml(String(status.state).replaceAll("_", " "))}</strong></div><div class="fact"><span>Presentations</span><strong>${escapeHtml(status.outputCount)}</strong></div></div>${await pilotSummary(manifest, token)}<p>You can return to your agent. It will prepare the next review and tell you when this page is ready again.</p><details><summary>Show technical status</summary><pre>${escapeHtml(JSON.stringify(status, null, 2))}</pre></details>`;
       send(response, 200, page("Narrated Deck Studio review", body), "text/html; charset=utf-8");
     } catch (error) {
       send(response, 400, page("Review error", `<h1>We could not complete that step</h1><p class="notice warning">${escapeHtml(error instanceof Error ? error.message : error)}</p>`), "text/html; charset=utf-8");

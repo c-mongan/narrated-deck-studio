@@ -3,7 +3,7 @@ name: narrated-deck-studio
 description: Produce or revise narrated presentations and product walkthroughs with coherent stories, readable evidence, measured audio timing, and final-file QA.
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
   author: Narrated Deck Studio contributors
   platforms: [macos, windows, linux]
   hermes:

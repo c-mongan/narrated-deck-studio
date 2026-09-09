@@ -1,6 +1,6 @@
 {
   "name": "narrated-deck-studio",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Consent-first local production of reviewed narrated PowerPoints and videos.",
   "license": "MIT",

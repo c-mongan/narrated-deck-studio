@@ -28,6 +28,8 @@ Reuse answers already given. Ask only for missing consequential choices:
 
 Call `draft_series_plan`. Explain the proposed split, slide/word budgets, source priorities, and three genuinely different creative territories. If the plan has unanswered questions, resolve them and redraft it.
 
+For an existing PowerPoint, call `prepare_representative_pilot` before expensive full-deck or voice generation. Review its speaker-note reuse, drafted narration, representative slides, and exception categories in the same local page. Attach preview audio only when it is deterministic test audio or explicitly permitted for this use. Repair only affected slide narration in the review page. The exported pilot package is a draft handoff, not a gate receipt or final deliverable.
+
 When several PowerPoints are present and the user does not request a different grouping, use `outputMode: one-per-powerpoint`. Every source deck must map to its own `SeriesItem`, and every item must ultimately produce its own PPTX, PPSX, MP4, VTT and SRT.
 
 Call `open_review` and ask the user to approve Gate 1 in the local page. Stop until project status shows `plan_approved`.
