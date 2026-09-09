@@ -6,12 +6,12 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entry = path.join(root, "mcpb", "server", "src", "mcp-server.js");
 const transport = new StdioClientTransport({ command: process.execPath, args: [entry], cwd: root, stderr: "pipe" });
-const client = new Client({ name: "narrated-deck-studio-smoke", version: "0.3.0" });
+const client = new Client({ name: "narrated-deck-studio-smoke", version: "0.4.0" });
 try {
   await client.connect(transport);
   const response = await client.listTools();
   const names = response.tools.map((tool) => tool.name).sort();
-  const expected = ["draft_series_plan", "export_deliverables", "get_project_status", "inspect_folder", "open_review", "request_revision", "run_approved_stage", "run_release_checks"].sort();
+  const expected = ["attach_pilot_preview", "draft_series_plan", "export_deliverables", "get_project_status", "inspect_folder", "open_review", "prepare_representative_pilot", "request_revision", "run_approved_stage", "run_release_checks"].sort();
   if (JSON.stringify(names) !== JSON.stringify(expected)) throw new Error(`Unexpected MCP tools: ${names.join(", ")}`);
   if (names.some((name) => ["approve", "approve_gate", "run_shell", "run_command"].includes(name))) throw new Error("Unsafe MCP capability exposed");
   console.log(`MCP smoke passed: ${names.length} narrow tools, no approval or shell tool`);

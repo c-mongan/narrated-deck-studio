@@ -1,0 +1,6 @@
+interface:
+  display_name: "Narrated Deck Studio"
+  short_description: "Produce readable narrated decks and walkthroughs"
+  default_prompt: "Use $narrated-deck-studio to produce a complete narrated presentation from these sources, reusing my stated preferences and checking the final deliverables."
+policy:
+  allow_implicit_invocation: true

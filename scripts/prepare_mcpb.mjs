@@ -25,7 +25,7 @@ await cp(path.join(root, "dist", "packages", "remotion-compositor"), path.join(s
 await cp(path.join(root, "packages", "world-class-decks"), path.join(staging, "packages", "world-class-decks"), { recursive: true, filter: runtimeSourceFilter });
 await writeFile(path.join(staging, "package.json"), `${JSON.stringify({
   name: "narrated-deck-studio-mcp-runtime",
-  version: "0.3.0",
+  version: "0.4.0",
   private: true,
   type: "module",
   dependencies: {

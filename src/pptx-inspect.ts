@@ -21,6 +21,14 @@ export interface PowerPointInspection {
   hasMedia: boolean;
 }
 
+export interface PowerPointSlideContent {
+  slide: number;
+  text: string;
+  notes: string;
+  layout: string;
+  chartCount: number;
+}
+
 export function inspectPowerPoint(pathname: string): PowerPointInspection {
   const archive = new AdmZip(pathname);
   const entries = archive.getEntries().map((entry) => entry.entryName);
@@ -46,6 +54,28 @@ export function extractSlideTexts(pathname: string): Array<{ slide: number; text
     .filter((entry) => /^ppt\/slides\/slide\d+\.xml$/.test(entry.entryName))
     .sort((a, b) => Number(a.entryName.match(/\d+/)?.[0]) - Number(b.entryName.match(/\d+/)?.[0]))
     .map((entry, index) => ({ slide: index + 1, text: decodeXml(entry.getData().toString("utf8")) }));
+}
+
+function numberedEntries(archive: AdmZip, pattern: RegExp): Array<{ number: number; name: string }> {
+  return archive.getEntries()
+    .map((entry) => ({ entry, match: entry.entryName.match(pattern) }))
+    .filter((value): value is { entry: AdmZip.IZipEntry; match: RegExpMatchArray } => Boolean(value.match))
+    .map(({ entry, match }) => ({ number: Number(match[1]), name: entry.entryName }))
+    .sort((a, b) => a.number - b.number);
+}
+
+/** Extracts review-oriented slide content without executing macros or embedded objects. */
+export function extractPowerPointSlideContent(pathname: string): PowerPointSlideContent[] {
+  const archive = new AdmZip(pathname);
+  const slides = numberedEntries(archive, /^ppt\/slides\/slide(\d+)\.xml$/);
+  const notes = new Map(numberedEntries(archive, /^ppt\/notesSlides\/notesSlide(\d+)\.xml$/).map(({ number, name }) => [number, decodeXml(archive.getEntry(name)?.getData().toString("utf8") ?? "")]));
+  return slides.map(({ number, name }) => {
+    const text = decodeXml(archive.getEntry(name)?.getData().toString("utf8") ?? "");
+    const relationships = archive.getEntry(`ppt/slides/_rels/slide${number}.xml.rels`)?.getData().toString("utf8") ?? "";
+    const layout = relationships.match(/Target="\.\.\/slideLayouts\/([^"/]+)"/)?.[1] ?? "unknown-layout";
+    const chartCount = (relationships.match(/Target="\.\.\/charts\//g) ?? []).length;
+    return { slide: number, text, notes: notes.get(number) ?? "", layout, chartCount };
+  });
 }
 
 export function inspectDocx(pathname: string): string {

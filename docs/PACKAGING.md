@@ -1,6 +1,6 @@
 # Agent-host packaging and release gates
 
-Codex and Hermes Agent use the versioned standalone stdio runtime installed by `npm run hosts:install`. Both receive the same portable skill and the same eight-tool MCP server. Claude Cowork uses the MCPB wrapper around that server; MCPB is a host adapter, not the platform core.
+Codex and Hermes Agent use the versioned standalone stdio runtime installed by `npm run hosts:install`. Both receive the same portable skill and the same ten-tool MCP server. Claude Cowork uses the MCPB wrapper around that server; MCPB is a host adapter, not the platform core.
 
 Run `npm run engines:install` first on a fresh machine. It installs the exact PPT Master commit recorded in `docs/DEPENDENCY_PINS.json`, verifies the checkout hash, and copies only its portable skill into Codex and Hermes. Existing installations are preserved unless `-- --replace` is explicit.
 

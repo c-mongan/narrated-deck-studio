@@ -27,6 +27,7 @@ let clipped = 0;
 let zeroRun = 0;
 let longestZeroRun = 0;
 let longestZeroRunEnd = 0;
+let longestInternalZeroRun = 0;
 let maximumJump = 0;
 const jumps = [];
 for (let i = 0; i < samples.length; i += 1) {
@@ -41,7 +42,10 @@ for (let i = 0; i < samples.length; i += 1) {
       longestZeroRun = zeroRun;
       longestZeroRunEnd = i + 1;
     }
-  } else zeroRun = 0;
+  } else {
+    if (zeroRun > 0 && i - zeroRun > 0) longestInternalZeroRun = Math.max(longestInternalZeroRun, zeroRun);
+    zeroRun = 0;
+  }
   if (i > 0) {
     const jump = Math.abs(value - samples[i - 1]);
     maximumJump = Math.max(maximumJump, jump);
@@ -81,6 +85,7 @@ const metrics = {
   longest_digital_zero_seconds: Number((longestZeroRun / sampleRate).toFixed(6)),
   longest_digital_zero_start_seconds: Number(((longestZeroRunEnd - longestZeroRun) / sampleRate).toFixed(6)),
   longest_digital_zero_at_file_edge: zeroAtEdge,
+  longest_internal_digital_zero_seconds: Number((longestInternalZeroRun / sampleRate).toFixed(6)),
   maximum_adjacent_sample_jump: Number(maximumJump.toFixed(6)),
   jump_outlier_ratio: Number((maximumJump / Math.max(jumpP999, 1e-9)).toFixed(2)),
   window_dynamic_range_db_p95_p10: Number((percentile(windowDb, 0.95) - percentile(windowDb, 0.1)).toFixed(2)),
@@ -93,7 +98,7 @@ const metrics = {
 const findings = [];
 if (metrics.clipped_sample_percent > 0.001) findings.push("possible clipping");
 if (Math.abs(metrics.dc_offset) > 0.01) findings.push("high DC offset");
-if (metrics.longest_digital_zero_seconds > 0.02 && !zeroAtEdge) findings.push("internal digital-zero gap may indicate an edit or dropout");
+if (metrics.longest_internal_digital_zero_seconds > 0.02) findings.push("internal digital-zero gap may indicate an edit or dropout");
 if (metrics.jump_outlier_ratio > 12 && metrics.maximum_adjacent_sample_jump > 0.5) findings.push("abrupt waveform jump needs listening review");
 if (metrics.words_per_minute !== null && metrics.words_per_minute > 190) findings.push("pace is fast for a general or older audience");
 if (metrics.words_per_minute !== null && metrics.words_per_minute < 105) findings.push("pace is unusually slow");

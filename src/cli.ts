@@ -9,9 +9,10 @@ import { startReviewServer } from "./review-server.js";
 import { exportDeliverables, runApprovedStage, runReleaseChecks } from "./pipeline.js";
 import { requestRevision } from "./revisions.js";
 import type { PlanAnswers } from "./types.js";
+import { attachPilotPreview, preparePilot } from "./pilot.js";
 
 const program = new Command();
-program.name("nds").description("Consent-first narrated PowerPoint studio").version("0.3.0");
+program.name("nds").description("Consent-first narrated PowerPoint studio").version("0.4.0");
 
 program.command("init").argument("<source-folder>").option("--workspace <folder>").action(async (source, options) => print(await createProject(source, options.workspace)));
 program.command("inspect").argument("<workspace>").action(async (workspace) => {
@@ -29,6 +30,11 @@ program.command("plan").argument("<workspace>").requiredOption("--answers <json-
   print(plan);
 });
 program.command("status").argument("<workspace>").action(async (workspace) => print(publicProjectStatus(await loadProject(path.resolve(workspace)))));
+program.command("pilot").argument("<workspace>").description("Prepare narration drafts and a representative review slice without advancing approvals").action(async (workspace) => print(await preparePilot(path.resolve(workspace))));
+program.command("pilot-audio").argument("<workspace>").argument("<item-id>").argument("<audio-file>").requiredOption("--kind <kind>", "deterministic-test or authorized-voice").option("--permission-confirmed").action(async (workspace, itemId, audioFile, options) => {
+  if (!new Set(["deterministic-test", "authorized-voice"]).has(options.kind)) throw new Error("Kind must be deterministic-test or authorized-voice");
+  print(await attachPilotPreview(path.resolve(workspace), itemId, path.resolve(audioFile), options.kind, options.permissionConfirmed === true));
+});
 program.command("review").argument("<workspace>").option("--port <port>", "loopback port", Number, 0).action(async (workspace, options) => {
   const handle = await startReviewServer(path.resolve(workspace), "127.0.0.1", options.port);
   console.log(`Review page: ${handle.url}`);
