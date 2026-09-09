@@ -27,3 +27,10 @@ models/
 # Job manifests can contain speaker and profile identifiers.
 jobs/
 *.private.json
+
+# Public, portable skill guidance (real source media remains private).
+!skills/narrated-deck-studio/references/
+!skills/narrated-deck-studio/references/**
+
+__pycache__/
+*.pyc

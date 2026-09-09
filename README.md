@@ -19,6 +19,16 @@ The deterministic core, local review flow, MCP server, host installers, media ad
 - Consent-gated local Voicebox take generation, immutable-master handling, alignment request/validation, captions, Remotion composition and Windows native PowerPoint narration application.
 - Fail-closed release checks and checksum manifest export.
 
+## Repeatable presentation production
+
+The [production skill](skills/narrated-deck-studio/SKILL.md) now routes narrated films and product walkthroughs separately from the managed PowerPoint pipeline. Its [producer brief](skills/narrated-deck-studio/agents/producer.md) carries audience/story ownership, rehearsals, pacing, source provenance, revision reuse and delivery checks. `AGENTS.md` and `CLAUDE.md` point agents to that entrypoint. `agents/openai.yaml` enables normal Codex skill discovery; the producer brief is portable guidance, not a registered background agent.
+
+Ask for the outcome, for example: “Use Narrated Deck Studio to make a narrated walkthrough from this folder for a first-time viewer.” Supply only consequential missing choices; the agent should reuse preferences already stated and carry production and verification through to completion.
+
+The self-contained [QA helper and contract](skills/narrated-deck-studio/references/quality-contract.md) check measured cue timing, reading holds, selected-master integrity, final audio fidelity and exact-file visual-review coverage. The existing host installer copies the entire skill, including its references and helper. To update only the skill without reinstalling the MCP runtime, back up the existing host skill and copy `skills/narrated-deck-studio/` into that host's skill directory. Preserve any unrelated local additions. New sessions may be needed to refresh skill discovery.
+
+These additions are agent-side production guidance and supplementary checks. They do not change application approval semantics, prove human listening, or remove native PowerPoint release requirements. Run `node --test tests/presentation_qa.test.mjs` with Python 3.10+, FFmpeg and ffprobe for the local media regression fixtures.
+
 ## Quick start from source
 
 Prerequisites:
