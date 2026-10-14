@@ -46,7 +46,7 @@
     "tmp": "0.2.7"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "@remotion/bundler": "^4.0.512",
     "@remotion/player": "^4.0.512",
     "@remotion/renderer": "^4.0.512",
