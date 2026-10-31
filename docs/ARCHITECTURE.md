@@ -3,12 +3,14 @@
 ```mermaid
 flowchart TD
   A["User selects or names a scoped folder"] --> B["Portable Agent Skill"]
-  B --> C["Local MCP server: eight narrow tools"]
+  B --> C["Local MCP server: ten narrow tools"]
   X["Codex / Hermes / Cowork"] --> B
   C --> D["TypeScript orchestrator"]
   D --> E["Safe inventory and extraction"]
   E --> F["Series plan"]
   F --> G["Approval 1: plan"]
+  F --> F1["Draft narration + representative pilot"]
+  F1 --> G
   G --> H["PPT Master authoring contract"]
   H --> I["World Class Decks audit and render"]
   I --> J["Approval 2: deck direction"]

@@ -5,11 +5,11 @@ description: Synchronise an immutable narration master to screens, slides, label
 
 # Video Narration Sync
 
-Use this when every narrated idea must appear beside the correct product screen.
+Use this when every narrated idea must appear beside the correct product screen. For the complete production and per-cue final-file checks, load `../narrated-deck-studio/SKILL.md` and its QA contract.
 
 ## Core rule
 
-The approved narration is the immutable timeline. Never trim, cut, reorder,
+Candidate generation may repair passages and include deliberate reading holds before selection. The approved continuous narration is then the immutable timeline. Never trim, cut, reorder,
 concatenate, crossfade, or chapter-map its audio. Change only the video, slides,
 labels, tooltips, cursor timing, captions, and visual speed.
 
@@ -71,7 +71,7 @@ standards. Validate them with older and first-time viewers.
 - visible subject matches the spoken subject at all samples
 - labels point to the intended control and do not hide it
 - tooltip reading time is at least five seconds and roughly 15 characters/second
-- captions match the same forced-alignment timeline
+- requested captions match the same accepted timing; verify subtitle-track absence when requested
 - final sentence and final card both complete before the video ends
 - one full audio input is mapped from time zero
 - assembly contains no `atrim`, audio `concat`, `acrossfade`, or chapter audio maps

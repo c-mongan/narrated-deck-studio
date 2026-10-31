@@ -10,8 +10,9 @@ import { draftSeriesPlan, inventoryPlainEnglish } from "./series-planner.js";
 import { startReviewServer, type ReviewServerHandle } from "./review-server.js";
 import { exportDeliverables, runApprovedStage, runReleaseChecks } from "./pipeline.js";
 import { requestRevision } from "./revisions.js";
+import { attachPilotPreview, preparePilot } from "./pilot.js";
 
-const server = new McpServer({ name: "narrated-deck-studio", version: "0.3.0" });
+const server = new McpServer({ name: "narrated-deck-studio", version: "0.4.0" });
 const reviewServers = new Map<string, ReviewServerHandle>();
 
 function result(value: unknown) { return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }], structuredContent: value as Record<string, unknown> }; }
@@ -49,6 +50,19 @@ server.tool("draft_series_plan", "Draft the series plan after asking the user ab
 
 server.tool("get_project_status", "Return redacted project state without private profile IDs or consent evidence.", { workspace: z.string().min(1) }, async ({ workspace }) => {
   try { return result(publicProjectStatus(await loadProject(path.resolve(workspace)))); } catch (error) { return toolError(error); }
+});
+
+server.tool("prepare_representative_pilot", "Draft slide narration, select representative slides and create a flagged review package without advancing an approval gate.", {
+  workspace: z.string().min(1),
+}, async ({ workspace }) => {
+  try { return result(await preparePilot(path.resolve(workspace))); } catch (error) { return toolError(error); }
+});
+
+server.tool("attach_pilot_preview", "Attach deterministic test audio or explicitly authorised voice audio to the representative pilot. This never approves or releases the project.", {
+  workspace: z.string().min(1), itemId: z.string().min(1), audioPath: z.string().min(1),
+  kind: z.enum(["deterministic-test", "authorized-voice"]), permissionConfirmed: z.boolean().optional(),
+}, async ({ workspace, itemId, audioPath, kind, permissionConfirmed }) => {
+  try { return result(await attachPilotPreview(path.resolve(workspace), itemId, audioPath, kind, permissionConfirmed === true)); } catch (error) { return toolError(error); }
 });
 
 server.tool("open_review", "Open the loopback-only human review page. Approval occurs only through this page, never through an agent tool.", { workspace: z.string().min(1) }, async ({ workspace }) => {
