@@ -4,7 +4,7 @@
 whisperx==3.8.6
 demucs==4.1.0
 pyannote.audio==4.0.7
-scenedetect==0.7.1
+scenedetect==0.7.2
 opencv-python==5.0.0.93
 # Compatibility pins for transformers 4.57.x used by WhisperX/pyannote.
 tokenizers==0.22.2
